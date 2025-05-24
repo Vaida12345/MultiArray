@@ -26,5 +26,6 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(name: "MultiArray", dependencies: ["Essentials", "FinderItem"]),
         .testTarget(name: "MultiArrayTests", dependencies: ["MultiArray"]),
+        .executableTarget(name: "Client", dependencies: ["MultiArray"], path: "Client")
     ]
 )

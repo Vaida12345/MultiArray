@@ -47,7 +47,7 @@ extension MultiArray {
         assert(source.count == shape.reduce(1, *), "Invalid shape \(shape) and buffer size \(source.count)")
         
         let buffer = UnsafeMutableBufferPointer<Element>.allocate(capacity: source.count)
-        source.copy(to: buffer.baseAddress!, count: buffer.count)
+        source.baseAddress!.copy(to: buffer.baseAddress!, count: buffer.count)
         
         self.init(bytesNoCopy: buffer, shape: shape, deallocator: .free)
     }

@@ -67,18 +67,20 @@ extension MultiArray {
     @inlinable
     public func forEach(_ block: (_ indexes: [Int], _ value: Element) -> Void) {
         var i = 0
-        var indexes = [Int](repeating: 0, count: self.strides.count)
+        var iterator = [Int](repeating: 0, count: self.strides.count)
+        
         while i != self.count {
-            block(indexes, self.buffer[i])
+            let value = self.buffer[i]
+            block(iterator, value)
             
-            indexes[indexes.count - 1] &+= 1
+            iterator[iterator.count - 1] &+= 1
             
             // carry
-            var ishape = shape.count - 1
+            var ishape = self.shape.count - 1
             while ishape != 0 {
-                if indexes[ishape] == self.shape[ishape] {
-                    indexes[ishape] = 0
-                    indexes[ishape - 1] &+= 1
+                if iterator[ishape] == self.shape[ishape] {
+                    iterator[ishape] = 0
+                    iterator[ishape - 1] &+= 1
                 } else {
                     break
                 }
