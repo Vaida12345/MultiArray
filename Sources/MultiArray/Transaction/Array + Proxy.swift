@@ -8,10 +8,13 @@
 
 extension MultiArray {
     
-    public struct TransactionProxy {
+    public final class TransactionProxy {
         
         @usableFromInline
         var works: [any WorkProtocol]
+        
+        /// The shape always reflects the current shape.
+        public var shape: [Int] = []
         
         @inlinable
         init(works: [any WorkProtocol]) {

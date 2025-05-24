@@ -47,7 +47,10 @@ extension MultiArray.TransactionProxy {
     
     @inlinable
     public func reshape(_ shape: [Int]) -> Self {
-        Self(works: self.works + [Reshape(shape: shape)])
+        let work = Reshape(shape: shape)
+        self.works.append(work)
+        self.shape = work.transformShape(shape: self.shape)
+        return self
     }
     
     @inlinable

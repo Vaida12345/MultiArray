@@ -58,7 +58,10 @@ extension MultiArray.TransactionProxy {
     /// - term `slices.element`: `nil` for keeping the entire range
     @inlinable
     public func sliced(_ slices: Range<Int>?...) -> Self {
-        Self(works: self.works + [Slice(slices: slices)])
+        let work = Slice(slices: slices)
+        self.works.append(work)
+        self.shape = work.transformShape(shape: self.shape)
+        return self
     }
     
 }

@@ -15,9 +15,10 @@ extension MultiArray {
     ///
     /// - Note: This method is highly optimized, using pointers to optimize retain/release.
     @inlinable
-    public func withTransaction(_ body: (_ proxy: TransactionProxy) -> TransactionProxy) -> MultiArray {
-        let proxy = TransactionProxy(works: [])
-        let works = body(proxy).works
+    public func withTransaction(_ body: (_ proxy: inout TransactionProxy) -> TransactionProxy) -> MultiArray {
+        var proxy = TransactionProxy(works: [])
+        proxy.shape = self.shape
+        let works = body(&proxy).works
         
         var shape: [[Int]] = []
         var strides: [[Int]] = []

@@ -94,6 +94,8 @@ public struct InverseShortTimeFourierTransform: Sendable {
         }
         
         // MARK: - synthesis
+        // COLA‐overlap–add + single‐divide
+        assert(self.center)
         vDSP.divide(buffer, windowSum, result: &buffer)
         
         return buffer

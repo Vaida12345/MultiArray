@@ -43,7 +43,10 @@ extension MultiArray.TransactionProxy {
     
     @inlinable
     public func transposed(_ lhs: Int, _ rhs: Int) -> Self {
-        Self(works: self.works + [Transpose(lhs: lhs, rhs: rhs)])
+        let work = Transpose(lhs: lhs, rhs: rhs)
+        self.works.append(work)
+        self.shape = work.transformShape(shape: self.shape)
+        return self
     }
     
 }

@@ -55,7 +55,7 @@ public final class InverseDiscreteFourierTransform: @unchecked Sendable {
                 
                 vDSP_DFT_Execute(self.dftSetup, realp.baseAddress!, imagp.baseAddress!, realp.baseAddress!, imagp.baseAddress!)
                 
-                // normalize
+                // normalize, this aligns with torch.fft.irfft with normalized=False (default)
                 var scale = 1 / Float(n_fft)
                 vDSP_vsmul(buffer.baseAddress!, 1, &scale, buffer.baseAddress!, 1, vDSP_Length(buffer.count))
                 

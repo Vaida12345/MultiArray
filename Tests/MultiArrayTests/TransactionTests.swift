@@ -15,7 +15,9 @@ struct TransactionTests {
     @Test func transpose() async throws {
         let multiArray = MultiArray<Float>.random(2, 4, 2)
         let new = multiArray.withTransaction { proxy in
-            proxy.transposed(0, 1)
+            let proxy = proxy.transposed(0, 1)
+            #expect(proxy.shape == [4, 2, 2])
+            return proxy
         }
         
         #expect(new.shape == [4, 2, 2])

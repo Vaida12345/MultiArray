@@ -13,7 +13,7 @@ extension MultiArray<Float> {
     /// > Optimization Tip:
     /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
-    public prefix static func - (array: inout MultiArray<Float>) -> MultiArray<Float> {
+    public prefix static func - (array: MultiArray<Float>) -> MultiArray<Float> {
         let result = MultiArray.allocate(array.shape)
         vDSP_vneg(array.baseAddress, 1, result.baseAddress, 1, vDSP_Length(array.count))
         
