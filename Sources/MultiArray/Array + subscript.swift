@@ -10,7 +10,7 @@ import Foundation
 
 extension MultiArray {
     
-    /// Returns the plain sequence at the given index.
+    /// Returns a view at the plain sequence at the given index.
     ///
     /// The `index` must points to an array, for example,
     /// ```swift
