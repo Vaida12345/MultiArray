@@ -5,20 +5,26 @@ import PackageDescription
 
 let package = Package(
     name: "MultiArray",
+    platforms: [
+        .macOS(.v13),
+        .iOS(.v16),
+        .watchOS(.v9),
+        .tvOS(.v16)
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "MultiArray",
             targets: ["MultiArray"]),
     ],
+    dependencies: [
+        .package(url: "https://www.github.com/Vaida12345/Essentials", from: "1.0.0"),
+        .package(url: "https://www.github.com/Vaida12345/FinderItem", from: "1.0.0"),
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "MultiArray"),
-        .testTarget(
-            name: "MultiArrayTests",
-            dependencies: ["MultiArray"]
-        ),
+        .target(name: "MultiArray", dependencies: ["Essentials", "FinderItem"]),
+        .testTarget(name: "MultiArrayTests", dependencies: ["MultiArray"]),
     ]
 )
