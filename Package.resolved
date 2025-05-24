@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://www.github.com/Vaida12345/Essentials",
       "state" : {
-        "revision" : "244f4554b088a49262d81517e41601d3ba81af09",
-        "version" : "1.0.42"
+        "revision" : "8c15a49523f6988b61fa556c2709500ea2838828",
+        "version" : "1.0.43"
       }
     },
     {

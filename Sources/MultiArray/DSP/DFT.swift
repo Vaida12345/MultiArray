@@ -65,14 +65,3 @@ public final class DiscreteFourierTransform: @unchecked Sendable {
     }
     
 }
-
-
-private func log2(_ x: Int) -> Int {
-    var n = x
-    var res = 0
-    while n > 1 {
-        n >>= 1
-        res += 1
-    }
-    return res
-}

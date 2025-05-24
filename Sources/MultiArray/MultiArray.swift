@@ -43,7 +43,7 @@ public final class MultiArray<Element>: @unchecked Sendable {
         shape: [Int],
         deallocator: Data.Deallocator
     ) {
-        assert(!shape.isEmpty && shape.allSatisfy({ $0 > 0 }), "Invalid shape")
+        assert(shape.allSatisfy({ $0 >= 0 }), "Invalid shape")
         assert(buffer.count == shape.reduce(1, *), "Invalid shape \(shape) and buffer size \(buffer.count)")
         
         self.buffer = buffer

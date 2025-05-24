@@ -78,7 +78,7 @@ extension MultiArray {
                 
                 var i = 0
                 while i < works.count {
-                    works[i].transformIndex(indexes: indexes, shape: (_shape[i], _shape[i + 1]), strides: (_strides[i], _strides[i + 1]))
+                    guard works[i].transformIndex(indexes: indexes, shape: (_shape[i], _shape[i + 1]), strides: (_strides[i], _strides[i + 1])) else { return }
                     i &+= 1
                 }
                 

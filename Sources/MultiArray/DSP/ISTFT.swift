@@ -94,16 +94,4 @@ public struct InverseShortTimeFourierTransform: Sendable {
         }
     }
     
-    /// 1D “reflect” padding that matches PyTorch’s pad_mode='reflect'.
-    /// For example, if x = [1,2,3,4,5] and pad=2, the result becomes [3,2, 1,2,3,4,5, 4,3].
-    private func reflectPad(_ input: [Float], pad: Int) -> [Float] {
-        precondition(pad <= input.count - 1,
-                     "Reflect padding must be <= (input.count - 1).")
-        // Left side is input[1..pad], reversed
-        let leftSlice = input[1...pad].reversed()
-        // Right side is input[(end - pad - 1)..(end - 1)], reversed
-        let rightSlice = input[(input.count - pad - 1)..<(input.count - 1)].reversed()
-        return Array(leftSlice) + input + Array(rightSlice)
-    }
-    
 }

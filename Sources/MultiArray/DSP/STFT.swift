@@ -105,24 +105,6 @@ public struct ShortTimeFourierTransform: Sendable {
         let rightSlice = input[(input.count - pad - 1)..<(input.count - 1)].reversed()
         return Array(leftSlice) + input + Array(rightSlice)
     }
-    
-}
-
-extension DSPComplex {
-    
-    static func +(a: DSPComplex, b: DSPComplex) -> DSPComplex {
-        DSPComplex(real: a.real + b.real, imag: a.imag + b.imag)
-    }
-    static func -(a: DSPComplex, b: DSPComplex) -> DSPComplex {
-        DSPComplex(real: a.real - b.real, imag: a.imag - b.imag)
-    }
-    static func *(a: DSPComplex, b: DSPComplex) -> DSPComplex {
-        DSPComplex(
-            real: a.real * b.real - a.imag * b.imag,
-            imag: a.real * b.imag + a.imag * b.real
-        )
-    }
-    
 }
 
 extension DSPComplex: @retroactive CustomStringConvertible {

@@ -21,8 +21,9 @@ extension MultiArray.TransactionProxy {
             indexes: UnsafeMutableBufferPointer<Int>,
             shape: (curr: UnsafeMutableBufferPointer<Int>, next: UnsafeMutableBufferPointer<Int>),
             strides: (curr: UnsafeMutableBufferPointer<Int>, next: UnsafeMutableBufferPointer<Int>)
-        ) {
+        ) -> Bool {
             swap(&(indexes.baseAddress! + lhs).pointee, &(indexes.baseAddress! + rhs).pointee)
+            return true
         }
         
         @inlinable

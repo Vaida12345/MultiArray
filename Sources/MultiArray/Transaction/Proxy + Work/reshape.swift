@@ -19,10 +19,11 @@ extension MultiArray.TransactionProxy {
             indexes: UnsafeMutableBufferPointer<Int>,
             shape: (curr: UnsafeMutableBufferPointer<Int>, next: UnsafeMutableBufferPointer<Int>),
             strides: (curr: UnsafeMutableBufferPointer<Int>, next: UnsafeMutableBufferPointer<Int>)
-        ) {
+        ) -> Bool {
             var index = 0
             MultiArray<Float>.convertIndex(from: indexes, to: &index, strides: strides.curr)
             MultiArray<Float>.convertIndex(from: index, to: indexes, strides: strides.next)
+            return true
         }
         
         @inlinable
