@@ -9,6 +9,7 @@ import Foundation
 import Accelerate
 
 
+/// ShortTimeFourierTransform using Hann window
 public struct ShortTimeFourierTransform: Sendable {
     
     private let n_fft: Int
@@ -17,7 +18,9 @@ public struct ShortTimeFourierTransform: Sendable {
     
     private let center: Bool
     
-    
+    /// - Parameters:
+    ///   - n_fft: The length of each segment, this is the value passed to ``DiscreteFourierTransform/init(count:)``
+    ///   - hop: The stride of segments.
     public init(
         n_fft: Int,
         hop: Int,

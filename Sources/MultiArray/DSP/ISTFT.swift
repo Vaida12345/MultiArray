@@ -38,6 +38,12 @@ public struct InverseShortTimeFourierTransform: Sendable {
         // MARK: - Prepare
         let idft = InverseDiscreteFourierTransform(count: n_fft)
         let window = hannWindow(count: n_fft)
+        let windowSquared = Array<Float>(unsafeUninitializedCapacity: n_fft) { windowSquared, initializedCount in
+            initializedCount = n_fft
+            window.withUnsafeBufferPointer { buffer in
+                vDSP_vsq(buffer.baseAddress!, 1, windowSquared.baseAddress!, 1, vDSP_Length(buffer.count))
+            }
+        }
         
         // MARK: - execute
         let nFrames = input.shape[1]
@@ -46,42 +52,51 @@ public struct InverseShortTimeFourierTransform: Sendable {
         let bufferLength = center ? L - n_fft : L
         let padAmount = center ? n_fft / 2 : 0
         
-        return Array<Float>(unsafeUninitializedCapacity: bufferLength) { buffer, initializedCount in
-            initializedCount = bufferLength
-            
-            var frameIndex = nFrames - 1
-            while frameIndex >= 0 {
-                let data = Array<DSPComplex>(unsafeUninitializedCapacity: n_fft / 2 + 1) { buffer, initializedCount in
-                    initializedCount = n_fft / 2 + 1
-                    
-                    for index in 0..<n_fft / 2 + 1 {
-                        buffer[index] = DSPComplex(
-                            real: input[index, frameIndex, 0],
-                            imag: input[index, frameIndex, 1]
-                        )
-                    }
+        var buffer = [Float](repeating: 0, count: bufferLength)
+        var windowSum = [Float](repeating: 0, count: bufferLength)
+        
+        var frameIndex = nFrames - 1
+        while frameIndex >= 0 {
+            let data = Array<DSPComplex>(unsafeUninitializedCapacity: n_fft / 2 + 1) { buffer, initializedCount in
+                initializedCount = n_fft / 2 + 1
+                
+                var index = 0
+                let end = n_fft / 2 + 1
+                while index < end {
+                    buffer[index] = DSPComplex(
+                        real: input[index, frameIndex, 0],
+                        imag: input[index, frameIndex, 1]
+                    )
+                    index &+= 1
                 }
-                
-                var frame = idft(data)
-                vDSP.divide(frame, window, result: &frame)
-                
-                let start = frameIndex * hop
-                let end   = start + n_fft
-                
-                let span = end - start
-                var offset = 0
-                while offset < span {
-                    defer {
-                        offset &+= 1
-                    }
-                    
-                    let index = start + offset
-                    guard index >= padAmount && index < bufferLength + padAmount else { continue }
-                    buffer.initializeElement(at: index - padAmount, to: frame[offset]) // Float is trivia type
-                }
-                frameIndex -= 1
             }
+            
+            var frame = idft(data)
+            // SYNTHESIS WINDOW: multiply (no divisions by small w[n])
+            vDSP.multiply(frame, window, result: &frame)
+            
+            let start = frameIndex * hop
+            let end   = start + n_fft
+            
+            let span = end - start
+            var offset = 0
+            while offset < span {
+                defer {
+                    offset &+= 1
+                }
+                
+                let index = start + offset
+                guard index >= padAmount && index < bufferLength + padAmount else { continue }
+                buffer[index - padAmount] += frame[offset]
+                windowSum[index - padAmount] += windowSquared[offset]
+            }
+            frameIndex -= 1
         }
+        
+        // MARK: - synthesis
+        vDSP.divide(buffer, windowSum, result: &buffer)
+        
+        return buffer
     }
     
     /// Create a normalized Hann window of size nFFT.
