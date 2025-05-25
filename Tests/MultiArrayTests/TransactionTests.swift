@@ -121,6 +121,22 @@ struct TransactionTests {
                 #expect(new[i, 1, 0] == multiArray[i, 2, 1])
             }
         }
+    }
+    
+    @Test func offset() async throws {
+        let multiArray = MultiArray<Float>.random(1, 7, 3)
+        var new = MultiArray<Float>.allocate(2, 7, 3)
+        new.buffer.initialize(repeating: .nan)
         
+        multiArray.withTransaction(into: &new) { proxy in
+            proxy.offset(1, 0, 0)
+        }
+        
+        for i in 0..<7 {
+            for ii in 0..<3 {
+                #expect(new[0, i, ii].isNaN)
+                #expect(new[1, i, ii] == multiArray[0, i, ii])
+            }
+        }
     }
 }

@@ -17,24 +17,11 @@ extension MultiArray {
     /// - Note: This method is highly optimized, using pointers to optimize retain/release.
     @inlinable
     public func withTransaction(
-        into buffer: UnsafeMutablePointer<Element>,
-        _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
-    ) {
-        var shape: [Int] = []
-        _ = self._withTransaction(into: buffer, resultingShape: &shape, body)
-    }
-    
-    /// Apply a transformation.
-    ///
-    /// - Note: This method is highly optimized, using pointers to optimize retain/release.
-    @inlinable
-    public func withTransaction(
         into multiArray: inout MultiArray<Element>,
         _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
     ) {
         var shape: [Int] = []
         _ = self._withTransaction(into: multiArray.buffer.baseAddress!, resultingShape: &shape, body)
-        assert(shape == multiArray.shape, "Invalid argument shape.")
     }
     
     /// Apply a transformation.
@@ -68,14 +55,21 @@ extension MultiArray {
         strides.append(self.strides)
         
         for (offset, work) in works.enumerated() {
+            assert(!shape[offset].isEmpty, "Cannot use `offset` on a non-trailing position.")
             let _shape = work.transformShape(shape: shape[offset])
             shape.append(_shape)
             
-            let _strides = MultiArray.contiguousStrides(shape: _shape)
-            strides.append(_strides)
+            if _shape.isEmpty {
+                // use previous strides
+                strides.append(strides[offset])
+            } else {
+                let _strides = MultiArray.contiguousStrides(shape: _shape)
+                strides.append(_strides)
+            }
         }
         
         resultingShape = shape.last!
+        assert(!(shape.last!.isEmpty && resultBuffer == nil), "Cannot use `offset` to create a new MultiArray.")
         let resultBuffer = resultBuffer ?? .allocate(capacity: resultingShape.reduce(1, *))
         
         let indexes = UnsafeMutableBufferPointer<Int>.allocate(capacity: self.shape.count)
