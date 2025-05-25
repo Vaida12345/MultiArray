@@ -52,4 +52,14 @@ extension MultiArray {
         self.init(bytesNoCopy: buffer, shape: shape, deallocator: .free)
     }
     
+    @inlinable
+    public convenience init(
+        bytesNoCopy: UnsafeMutablePointer<Element>,
+        shape: [Int],
+        deallocator: Data.Deallocator
+    ) {
+        let count = shape.reduce(1, *)
+        self.init(bytesNoCopy: UnsafeMutableBufferPointer(start: bytesNoCopy, count: count), shape: shape, deallocator: deallocator)
+    }
+    
 }
