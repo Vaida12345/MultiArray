@@ -15,7 +15,7 @@ extension MultiArray {
     public static func allocate(_ shape: [Int]) -> MultiArray {
         let count = shape.reduce(1, *)
         return MultiArray(
-            bytesNoCopy: .allocate(capacity: count),
+            bytesNoCopy: UnsafeMutableBufferPointer<Element>.allocate(capacity: count),
             shape: shape,
             deallocator: .free
         )
