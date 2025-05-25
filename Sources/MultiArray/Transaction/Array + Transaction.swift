@@ -7,6 +7,7 @@
 
 import Foundation
 import Essentials
+import Accelerate
 
 
 extension MultiArray {
@@ -15,7 +16,35 @@ extension MultiArray {
     ///
     /// - Note: This method is highly optimized, using pointers to optimize retain/release.
     @inlinable
-    public func withTransaction(_ body: (_ proxy: inout TransactionProxy) -> TransactionProxy) -> MultiArray {
+    public func withTransaction(
+        into multiArray: inout MultiArray<Element>,
+        _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
+    ) {
+        var shape: [Int] = []
+        _ = self._withTransaction(into: multiArray.buffer, resultingShape: &shape, body)
+        assert(shape == multiArray.shape, "Invalid argument shape.")
+    }
+    
+    /// Apply a transformation.
+    ///
+    /// - Note: This method is highly optimized, using pointers to optimize retain/release.
+    @inlinable
+    public func withTransaction(_ body: (_ proxy: inout TransactionProxy) -> TransactionProxy) -> MultiArray<Element> {
+        var shape: [Int] = []
+        let buffer = self._withTransaction(into: nil, resultingShape: &shape, body)
+        // the buffer is allocated
+        return MultiArray(bytesNoCopy: buffer, shape: shape, deallocator: .free)
+    }
+    
+    /// Apply a transformation.
+    ///
+    /// - Note: This method is highly optimized, using pointers to optimize retain/release.
+    @inlinable
+    func _withTransaction(
+        into resultBuffer: UnsafeMutableBufferPointer<Element>?,
+        resultingShape: inout [Int],
+        _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
+    ) -> UnsafeMutableBufferPointer<Element> {
         var proxy = TransactionProxy(works: [])
         proxy.shape = self.shape
         let works = body(&proxy).works
@@ -34,13 +63,16 @@ extension MultiArray {
             strides.append(_strides)
         }
         
-        let result = MultiArray.allocate(shape.last!)
-        let resultBuffer = result.buffer
+        resultingShape = shape.last!
+        let resultBuffer = resultBuffer ?? .allocate(capacity: resultingShape.reduce(1, *))
+        
         let indexes = UnsafeMutableBufferPointer<Int>.allocate(capacity: self.shape.count)
+        
         defer {
             indexes.deallocate()
         }
         
+        // MARK: - shape & strides
         let _shape = UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Int>>.allocate(capacity: shape.count)
         for (offset, shape) in shape.enumerated() {
             let element = UnsafeMutableBufferPointer<Int>.allocate(capacity: shape.count)
@@ -89,7 +121,7 @@ extension MultiArray {
             }
         }
         
-        return result
+        return resultBuffer
     }
     
 }

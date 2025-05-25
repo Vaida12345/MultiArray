@@ -10,7 +10,7 @@ import MultiArray
 
 
 let date = Date()
-let multiArray = MultiArray<Float>.allocate(20, 700, 30)
+let multiArray = MultiArray<Float>.allocate(200, 700, 300)
 let new = multiArray.withTransaction { proxy in
     proxy.reshape(-1, 7)
 }
