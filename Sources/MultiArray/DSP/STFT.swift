@@ -70,16 +70,7 @@ public struct ShortTimeFourierTransform: Sendable {
             var frame = Array(input[start..<end])
             vDSP.multiply(frame, window, result: &frame)  // in-place multiply by Hann
             
-            let data = dft(frame)
-            
-            var index = 0
-            while index < data.count {
-                let value = data[index]
-                result.initializeElement(at: [index, frameIndex, 0], to: value.real)
-                result.initializeElement(at: [index, frameIndex, 1], to: value.imag)
-                
-                index &+= 1
-            }
+            dft(frame, result: result.baseAddress + frameIndex * 2, stride: result.strides[0] / 2)
             
             frameIndex += 1
         }

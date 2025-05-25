@@ -10,12 +10,21 @@ import MultiArray
 import Accelerate
 
 
+extension Tag {
+    @Tag static var dft: Self
+    @Tag static var idft: Self
+    @Tag static var stft: Self
+    @Tag static var istft: Self
+}
+
+
 struct DSPTests {
     
     @Suite
     struct STFTTests {
         
-        @Test func length16() {
+        @Test(.tags(.stft))
+        func length16() {
             let stft = ShortTimeFourierTransform(n_fft: 8, hop: 4)
             let input = (0..<16).map(Float.init)
             let data = stft(input)
@@ -27,7 +36,7 @@ struct DSPTests {
         
     }
     
-    @Suite
+    @Suite(.tags(.stft, .istft))
     struct ISTFTTests {
         
         func length(count: Int, hop: Int) {
@@ -50,28 +59,29 @@ struct DSPTests {
         
     }
     
-    @Suite
+    @Suite(.tags(.dft))
     struct DFTTests {
         
         @Test func length16() {
             let dft = DiscreteFourierTransform(count: 16)
             let input = (0..<16).map(Float.init)
-            let reference = [
-                DSPComplex(real: 120, imag: 0),
-                DSPComplex(real: -8, imag: 40.2187),
-                DSPComplex(real: -8, imag: 19.3137),
-                DSPComplex(real: -8, imag: 11.9728),
-                DSPComplex(real: -8, imag: 8.0000),
-                DSPComplex(real: -8, imag: 5.3454),
-                DSPComplex(real: -8, imag: 3.3137),
-                DSPComplex(real: -8, imag: 1.5913),
-                DSPComplex(real: -8, imag: 0.0000),
-            ]
-            #expect(dft(input).contentsEqual(reference))
+            let reference = MultiArray<Float>([
+                    [120, 0],
+                    [-8, 40.2187],
+                    [-8, 19.3137],
+                    [-8, 11.9728],
+                    [-8, 8.0000],
+                    [-8, 5.3454],
+                    [-8, 3.3137],
+                    [-8, 1.5913],
+                    [-8, 0.0000]
+            ] as [[Float]])
+            let output = dft(input)
+            #expect(output.contentsEqual(reference, tolerance: 1e-4))
         }
     }
     
-    @Suite
+    @Suite(.tags(.dft, .idft))
     struct IDFTTests {
         
         func length(count: Int) {

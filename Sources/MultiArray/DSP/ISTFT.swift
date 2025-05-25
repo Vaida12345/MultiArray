@@ -57,21 +57,7 @@ public struct InverseShortTimeFourierTransform: Sendable {
         
         var frameIndex = nFrames - 1
         while frameIndex >= 0 {
-            let data = Array<DSPComplex>(unsafeUninitializedCapacity: n_fft / 2 + 1) { buffer, initializedCount in
-                initializedCount = n_fft / 2 + 1
-                
-                var index = 0
-                let end = n_fft / 2 + 1
-                while index < end {
-                    buffer[index] = DSPComplex(
-                        real: input[index, frameIndex, 0],
-                        imag: input[index, frameIndex, 1]
-                    )
-                    index &+= 1
-                }
-            }
-            
-            var frame = idft(data)
+            var frame = idft(input.baseAddress + frameIndex * 2, stride: input.strides[0] / 2)
             // SYNTHESIS WINDOW: multiply (no divisions by small w[n])
             vDSP.multiply(frame, window, result: &frame)
             
