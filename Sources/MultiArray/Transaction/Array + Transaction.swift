@@ -17,11 +17,23 @@ extension MultiArray {
     /// - Note: This method is highly optimized, using pointers to optimize retain/release.
     @inlinable
     public func withTransaction(
+        into buffer: UnsafeMutablePointer<Element>,
+        _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
+    ) {
+        var shape: [Int] = []
+        _ = self._withTransaction(into: buffer, resultingShape: &shape, body)
+    }
+    
+    /// Apply a transformation.
+    ///
+    /// - Note: This method is highly optimized, using pointers to optimize retain/release.
+    @inlinable
+    public func withTransaction(
         into multiArray: inout MultiArray<Element>,
         _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
     ) {
         var shape: [Int] = []
-        _ = self._withTransaction(into: multiArray.buffer, resultingShape: &shape, body)
+        _ = self._withTransaction(into: multiArray.buffer.baseAddress!, resultingShape: &shape, body)
         assert(shape == multiArray.shape, "Invalid argument shape.")
     }
     
@@ -41,10 +53,10 @@ extension MultiArray {
     /// - Note: This method is highly optimized, using pointers to optimize retain/release.
     @inlinable
     func _withTransaction(
-        into resultBuffer: UnsafeMutableBufferPointer<Element>?,
+        into resultBuffer: UnsafeMutablePointer<Element>?,
         resultingShape: inout [Int],
         _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
-    ) -> UnsafeMutableBufferPointer<Element> {
+    ) -> UnsafeMutablePointer<Element> {
         var proxy = TransactionProxy(works: [])
         proxy.shape = self.shape
         let works = body(&proxy).works
@@ -117,7 +129,7 @@ extension MultiArray {
                 
                 var index = 0
                 MultiArray.convertIndex(from: indexes, to: &index, strides: trailingStride)
-                resultBuffer.initializeElement(at: index, to: value)
+                (resultBuffer + index).initialize(to: value)
             }
         }
         
