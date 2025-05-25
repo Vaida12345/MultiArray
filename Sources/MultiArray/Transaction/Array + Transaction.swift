@@ -21,7 +21,7 @@ extension MultiArray {
         _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
     ) {
         var shape: [Int] = []
-        _ = self._withTransaction(into: multiArray.buffer.baseAddress!, resultingShape: &shape, body)
+        _ = self._withTransaction(into: multiArray, resultingShape: &shape, body)
     }
     
     /// Apply a transformation.
@@ -40,7 +40,7 @@ extension MultiArray {
     /// - Note: This method is highly optimized, using pointers to optimize retain/release.
     @inlinable
     func _withTransaction(
-        into resultBuffer: UnsafeMutablePointer<Element>?,
+        into resultBuffer: MultiArray<Element>?,
         resultingShape: inout [Int],
         _ body: (_ proxy: inout TransactionProxy) -> TransactionProxy
     ) -> UnsafeMutablePointer<Element> {
@@ -60,18 +60,20 @@ extension MultiArray {
             shape.append(_shape)
             
             if _shape.isEmpty {
-                // use previous strides
-                strides.append(strides[offset])
+                // use result strides
+                assert(!(shape.last!.isEmpty && resultBuffer == nil), "Cannot use `offset` to create a new MultiArray.")
+                let _strides = MultiArray.contiguousStrides(shape: resultBuffer!.shape)
+                strides.append(_strides)
             } else {
                 let _strides = MultiArray.contiguousStrides(shape: _shape)
                 strides.append(_strides)
             }
         }
         
-        resultingShape = shape.last!
-        assert(!(shape.last!.isEmpty && resultBuffer == nil), "Cannot use `offset` to create a new MultiArray.")
-        let resultBuffer = resultBuffer ?? .allocate(capacity: resultingShape.reduce(1, *))
-        
+        if !shape.last!.isEmpty {
+            resultingShape = shape.last!
+        }
+        let resultBuffer = resultBuffer?.buffer.baseAddress ?? .allocate(capacity: resultingShape.reduce(1, *))
         let indexes = UnsafeMutableBufferPointer<Int>.allocate(capacity: self.shape.count)
         
         defer {
