@@ -14,7 +14,9 @@ extension MLMultiArray {
         let dataType: MLMultiArrayDataType
         switch T.self {
         case is Int32.Type: dataType = .int32
+#if (!os(macOS) || arch(arm64))
         case is Float16.Type: dataType = .float16
+#endif
         case is Float.Type: dataType = .float32
         case is Double.Type: dataType = .double
         default: fatalError("Unsupported type \(T.self)")
@@ -46,7 +48,9 @@ extension MultiArray {
         let dataType: MLMultiArrayDataType
         switch Element.self {
         case is Int32.Type: dataType = .int32
+#if (!os(macOS) || arch(arm64))
         case is Float16.Type: dataType = .float16
+#endif
         case is Float.Type: dataType = .float32
         case is Double.Type: dataType = .double
         default: fatalError("Unsupported type \(Element.self)")

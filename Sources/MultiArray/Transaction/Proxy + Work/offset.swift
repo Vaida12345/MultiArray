@@ -42,7 +42,9 @@ extension MultiArray.TransactionProxy {
     
     /// Apply an offset
     ///
-    /// - Warning: This method can only be used in `withTransaction(into:_:)`.
+    /// - Warning: This method can only be used as the last statement AND in `withTransaction(into:_:)`.
+    ///
+    /// - Warning: Offset calculation does not check for overflow due to performance considerations.
     @inlinable
     public func offset(_ offsets: Int...) -> Self {
         let work = Offset(offsets: offsets)
