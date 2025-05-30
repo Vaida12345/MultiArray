@@ -33,9 +33,9 @@ extension MultiArray where Element == Float {
         assert(lhs.shape[1] == rhs.shape[0])
         assert(lhs.shape[0] == buffer.shape[0] && rhs.shape[1] == buffer.shape[1])
 
-        let m = lhs[0]
-        let n = lhs[1] // which is also rhs.height
-        let p = rhs[1]
+        let m = lhs.shape[0]
+        let n = lhs.shape[1] // which is also rhs.height
+        let p = rhs.shape[1]
         let alpha: Float = 1
         let beta:  Float = 0
         

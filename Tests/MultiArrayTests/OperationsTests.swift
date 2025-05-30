@@ -68,5 +68,10 @@ struct OperationsTests {
         #expect(y[3] == -x[0, 3])
     }
     
+    @Test func matmul() {
+        let a = MultiArray<Float>([[1, 2], [3, 4]] as [[Float]])
+        #expect(MultiArray.matmul(a, a).contentsEqual(MultiArray<Float>([[7, 10], [15, 22]] as [[Float]])))
+    }
+    
     
 }
