@@ -116,3 +116,17 @@ extension MultiArray {
         )
     }
 }
+
+
+extension Array {
+    
+    /// Calls the given closure with a pointer to the array's mutable contiguous storage.
+    @inlinable
+    public mutating func withMultiArray<R>(_ body: (MultiArray<Element>) throws -> R) rethrows -> R {
+        try self.withUnsafeMutableBufferPointer {
+            let array = MultiArray(bytesNoCopy: $0, shape: [$0.count], deallocator: .none)
+            return try body(array)
+        }
+    }
+    
+}

@@ -46,10 +46,10 @@ public final class DiscreteFourierTransform {
     /// - Returns: `n_fft/2 × 2` `complexCount × (real, imag)`
     ///
     /// - Warning: This method is not thread-safe. Do NEVER call this method of the same instance in parallel.
-    public func callAsFunction(_ input: [Float], result: UnsafeMutablePointer<Float>, stride: Int) {
+    public func callAsFunction(_ input: MultiArray<Float>, result: UnsafeMutablePointer<Float>, stride: Int) {
         assert(input.count == n_fft, "n_fft mismatch")
-        input.withUnsafeBytes {
-            vDSP_ctoz($0.bindMemory(to: DSPComplex.self).baseAddress!, 2, &splitComplex, 1, vDSP_Length(n_fft / 2))
+        input.buffer.withMemoryRebound(to: DSPComplex.self) { buffer in
+            vDSP_ctoz(buffer.baseAddress!, 2, &splitComplex, 1, vDSP_Length(n_fft / 2))
         }
         
         vDSP_DFT_Execute(self.dftSetup, splitComplex.realp, splitComplex.imagp, splitComplex.realp, splitComplex.imagp)
@@ -69,7 +69,7 @@ public final class DiscreteFourierTransform {
     /// - Parameter input: 1D array, `n_fft`
     ///
     /// - Returns: `n_fft/2 × 2` `complexCount × (real, imag)`
-    public func callAsFunction(_ input: [Float]) -> MultiArray<Float> {
+    public func callAsFunction(_ input: MultiArray<Float>) -> MultiArray<Float> {
         let result = MultiArray<Float>.allocate(n_fft / 2 + 1, 2)
         self.callAsFunction(input, result: result.baseAddress, stride: 1)
         return result

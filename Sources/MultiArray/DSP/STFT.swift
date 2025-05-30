@@ -68,9 +68,12 @@ public struct ShortTimeFourierTransform: Sendable {
             
             // Extract the current frame and apply the Hann window.
             var frame = Array(input[start..<end])
-            vDSP.multiply(frame, window, result: &frame)  // in-place multiply by Hann
+            vDSP.multiply(frame, window, result: &frame)  // in-place multiply by Hann, is copied anyway
             
-            dft(frame, result: result.baseAddress + frameIndex * 2, stride: result.strides[0] / 2)
+            frame.withUnsafeMutableBufferPointer { buffer in
+                let frame = MultiArray<Float>(bytesNoCopy: buffer, shape: [buffer.count], deallocator: .none)
+                dft(frame, result: result.baseAddress + frameIndex * 2, stride: result.strides[0] / 2)
+            }
             
             frameIndex += 1
         }

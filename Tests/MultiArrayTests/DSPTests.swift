@@ -64,7 +64,7 @@ struct DSPTests {
         
         @Test func length16() {
             let dft = DiscreteFourierTransform(count: 16)
-            let input = (0..<16).map(Float.init)
+            var input = (0..<16).map(Float.init)
             let reference = MultiArray<Float>([
                     [120, 0],
                     [-8, 40.2187],
@@ -76,7 +76,9 @@ struct DSPTests {
                     [-8, 1.5913],
                     [-8, 0.0000]
             ] as [[Float]])
-            let output = dft(input)
+            let output = input.withMultiArray { input in
+                dft(input)
+            }
             #expect(output.contentsEqual(reference, tolerance: 1e-4))
         }
     }
@@ -85,11 +87,13 @@ struct DSPTests {
     struct IDFTTests {
         
         func length(count: Int) {
-            let input = (0..<count).map(Float.init)
-            let transform = DiscreteFourierTransform(count: count)(input)
-            let output = InverseDiscreteFourierTransform(count: count)(transform)
-            let isTrue = input.contentsEqual(output, tolerance: 1e-3)
-            #expect(isTrue, "failed for count \(count), tolerance \(1e-3)")
+            var input = (0..<count).map(Float.init)
+            input.withMultiArray { input in
+                let transform = DiscreteFourierTransform(count: count)(input)
+                let output = InverseDiscreteFourierTransform(count: count)(transform)
+                let isTrue = Array(input.buffer).contentsEqual(output, tolerance: 1e-3)
+                #expect(isTrue, "failed for count \(count), tolerance \(1e-3)")
+            }
         }
         
         @Test(arguments: 4...11)
