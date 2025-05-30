@@ -7,27 +7,32 @@
 
 import Foundation
 import MultiArray
+import Essentials
 import Accelerate
+
 
 // MARK: - spectrogram
 let inputs = Array(0..<162048).map { sin(Float($0) * 0.001) }
 let frames_per_second = 100
 
+let date = Date()
+
 let stft = ShortTimeFourierTransform(n_fft: 2048, hop: 16000 / frames_per_second, center: false)
 var output = stft(inputs)
 var power: Float = 2
 var count = Int32(output.count)
-vvpowsf(output.baseAddress, &power, output.baseAddress, &count)
+vDSP.multiply(output, output, result: &output)
 
 // now convert to torchlibrosa style
 let spectrogram = MultiArray<Float>.allocate(1001, 1025)
 
+let iteratorDate = Date()
 var i = 0
 var iterator = [Int](repeating: 0, count: 2)
 
-while i != output.count {
+while i < output.count {
     // work
-    spectrogram[iterator[1], iterator[0]] = output[iterator[0], iterator[1], 0] + output[iterator[0], iterator[1], 1]
+    spectrogram[iterator[1], iterator[0]] = output.buffer[i] + output.buffer[i + 1]
     
     iterator[iterator.count - 1] &+= 1
     
@@ -45,12 +50,12 @@ while i != output.count {
     
     i &+= 2
 }
-
-print("spectrogram")
-print(spectrogram)
+print("iterate", iteratorDate.distanceToNow())
 
 // MARK: - LogmelFilterBank
 
+let date2 = Date()
 let melW = LogmelFilter(sampleRate: 16000, n_fft: 2048, n_mels: 229, fmin: 30, fmax: 16000 / 2)
-print(melW(spectrogram).shape)
-print(melW(spectrogram))
+print("init \(date2.distanceToNow())")
+let a = melW(spectrogram)
+print(date.distanceToNow())

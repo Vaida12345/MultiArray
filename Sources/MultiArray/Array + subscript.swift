@@ -97,6 +97,9 @@ extension MultiArray {
     /// Subscripts at the given `indexes`.
     ///
     /// - Warning: The pointer at the given `indexes` must be initialized, otherwise use ``initializeElement(at:to:)`` instead.
+    ///
+    /// > Performance Consideration:
+    /// > This subscript is not O(*1*), as index conversion is required.
     @inlinable
     public nonisolated subscript(_ indexes: [Int]) -> Element {
         get {
@@ -120,6 +123,9 @@ extension MultiArray {
     /// Subscripts at the given `indexes`.
     ///
     /// - Warning: The pointer at the given `indexes` must be initialized, otherwise use ``initializeElement(at:to:)`` instead.
+    ///
+    /// > Performance Consideration:
+    /// > This subscript is not O(*1*), as index conversion is required.
     @inlinable
     public nonisolated subscript(_ indexes: Int...) -> Element {
         get { self[indexes] }
