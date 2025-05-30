@@ -38,7 +38,9 @@ public final class LogmelFilter {
         self.fmin = fmin
         self.fmax = fmax ?? Float(sampleRate / 2)
         
-        self.filters = self.filter()
+        self.filters = self.filter().withTransaction { proxy in
+            proxy.transposed(0, 1)
+        }
     }
     
     
