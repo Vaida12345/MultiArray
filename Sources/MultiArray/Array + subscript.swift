@@ -56,9 +56,12 @@ extension MultiArray {
         assert(indexes.count < self.strides.count, "Invalid indexes")
         let offset = zip(indexes + [Int](repeating: 0, count: self.strides.count - indexes.count), self.strides).reduce(0) { $0 + $1.0 * $1.1 }
         let shape = Array(self.shape.dropFirst(indexes.count))
-        return MultiArray(bytesNoCopy: UnsafeMutableBufferPointer<Element>(start: self.baseAddress + offset, count: shape.reduce(1, *)),
-                          shape: shape,
-                          deallocator: captureReference())
+        return MultiArray(
+            bytesNoCopy: UnsafeMutableBufferPointer<Element>(start: self.baseAddress + offset, count: shape.reduce(1, *)),
+            shape: shape,
+            deallocator: captureReference(),
+            operatorsShouldReturnCopiedSelf: self.operatorsShouldReturnCopiedSelf
+        )
     }
     
     /// For each of the element in the array.

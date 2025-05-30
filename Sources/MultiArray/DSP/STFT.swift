@@ -36,9 +36,9 @@ public struct ShortTimeFourierTransform: Sendable {
     /// - Parameter input: 1D array, `L`
     ///
     /// - Returns: `frequencySamples × frames × complexComponents`, `n_fft/2+1 × (1+L)/hop × 2`
-    public func callAsFunction(_ input: Array<Float>) -> MultiArray<Float> {
+    public func callAsFunction(_ input: consuming Array<Float>) -> MultiArray<Float> {
         // 1. Optional reflect-padding to “center” frames, as PyTorch does by default.
-        var x = input
+        var x = consume input
         let padAmount = n_fft / 2
         if center {
             x = reflectPad(x, pad: padAmount)

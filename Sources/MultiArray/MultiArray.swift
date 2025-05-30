@@ -19,7 +19,13 @@ public final class MultiArray<Element>: @unchecked Sendable {
     @usableFromInline
     var deallocator: Data.Deallocator
     
+    /// See Array + Copy.swift
+    @usableFromInline
+    internal let operatorsShouldReturnCopiedSelf: OperatorsShouldReturnCopiedSelf
+    
     /// The array multidimensional shape as a number array in which each element’s value is the size of the corresponding dimension.
+    ///
+    /// For a 2D array (matrix), the shapes are in height-width order.
     public let shape: [Int]
     
     /// A number array in which each element is the number of memory locations that span the length of the corresponding dimension.
@@ -38,10 +44,11 @@ public final class MultiArray<Element>: @unchecked Sendable {
     
     
     @inlinable
-    public init(
+    internal init(
         bytesNoCopy buffer: UnsafeMutableBufferPointer<Element>,
         shape: [Int],
-        deallocator: Data.Deallocator
+        deallocator: Data.Deallocator,
+        operatorsShouldReturnCopiedSelf: OperatorsShouldReturnCopiedSelf
     ) {
         assert(shape.allSatisfy({ $0 >= 0 }), "Invalid shape")
         assert(buffer.count == shape.reduce(1, *), "Invalid shape \(shape) and buffer size \(buffer.count)")
@@ -50,6 +57,7 @@ public final class MultiArray<Element>: @unchecked Sendable {
         self.deallocator = deallocator
         self.shape = shape
         self.strides = MultiArray.contiguousStrides(shape: shape)
+        self.operatorsShouldReturnCopiedSelf = operatorsShouldReturnCopiedSelf
     }
     
     @inlinable

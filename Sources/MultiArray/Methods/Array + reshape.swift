@@ -20,7 +20,12 @@ extension MultiArray {
         }
         assert(shape.reduce(1, *) == self.count, "Invalid shape")
         
-        return MultiArray(bytesNoCopy: self.buffer, shape: shape, deallocator: self.captureReference())
+        return MultiArray(
+            bytesNoCopy: self.buffer,
+            shape: shape,
+            deallocator: self.captureReference(),
+            operatorsShouldReturnCopiedSelf: self.operatorsShouldReturnCopiedSelf
+        )
     }
     
 }

@@ -7,6 +7,7 @@
 
 import Essentials
 import Foundation
+import Accelerate
 
 
 extension MultiArray {
@@ -36,6 +37,27 @@ extension MultiArray {
             i &+= 1
         }
         return result
+    }
+    
+    @inlinable
+    public static func zeros(_ shape: Int...) -> MultiArray where Element == Float {
+        let result = MultiArray.allocate(shape)
+        vDSP_vclr(result.baseAddress, 1, vDSP_Length(result.count))
+        return result
+    }
+    
+    @inlinable
+    public convenience init(
+        bytesNoCopy buffer: UnsafeMutableBufferPointer<Element>,
+        shape: [Int],
+        deallocator: Data.Deallocator
+    ) {
+        self.init(
+            bytesNoCopy: buffer,
+            shape: shape,
+            deallocator: deallocator,
+            operatorsShouldReturnCopiedSelf: OperatorsShouldReturnCopiedSelf()
+        )
     }
     
     @inlinable
