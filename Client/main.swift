@@ -52,4 +52,5 @@ print(spectrogram)
 // MARK: - LogmelFilterBank
 
 let melW = LogmelFilter(sampleRate: 16000, n_fft: 2048, n_mels: 229, fmin: 30, fmax: 16000 / 2)
+print(melW(spectrogram).shape)
 print(melW(spectrogram))

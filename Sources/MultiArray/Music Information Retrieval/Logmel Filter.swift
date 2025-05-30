@@ -45,7 +45,9 @@ public final class LogmelFilter {
     
     
     public func callAsFunction(_ input: MultiArray<Float>) -> MultiArray<Float> {
-        MultiArray.matmul(input, self.filters)
+        let values = MultiArray.matmul(input, self.filters)
+        values.negate() // okay, must negate, don't know why
+        return values
     }
     
     
