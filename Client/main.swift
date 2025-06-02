@@ -28,7 +28,11 @@ let spectrogram = MultiArray<Float>.allocate(1001, 1025)
 
 let iteratorDate = Date()
 var i = 0
-var iterator = [Int](repeating: 0, count: 2)
+let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: 2)
+iterator.initialize(repeating: 0)
+defer {
+    iterator.deallocate()
+}
 
 while i < output.count {
     // work
@@ -56,6 +60,5 @@ print("iterate", iteratorDate.distanceToNow())
 
 let date2 = Date()
 let melW = LogmelFilter(sampleRate: 16000, n_fft: 2048, n_mels: 229, fmin: 30, fmax: 16000 / 2)
-print("init \(date2.distanceToNow())")
 let a = melW(spectrogram)
-print(date.distanceToNow())
+

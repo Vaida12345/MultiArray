@@ -33,6 +33,26 @@ extension MultiArray {
         }
     }
     
+    @inlinable
+    public static func convertIndex(
+        from offset: Int,
+        to indexes: inout [Int],
+        strides: UnsafeMutableBufferPointer<Int>
+    ) {
+        assert(strides.count == indexes.count, "Mismatch between strides and indexes count")
+        var rem = offset
+        var i = 0
+        let endIndex = strides.count
+        while i < endIndex {
+            // computes both quotient & remainder in one machine‐instruction
+            let qr = rem.quotientAndRemainder(dividingBy: strides[i])
+            indexes[i] = qr.quotient
+            rem = qr.remainder
+            
+            i &+= 1
+        }
+    }
+    
     /// > Optimization Tip:
     /// > Store `strides` and use `convertIndex(from:to:strides:)`
     @inlinable
@@ -73,10 +93,30 @@ extension MultiArray {
     }
     
     @inlinable
+    public func convertIndex(from indexes: UnsafeMutableBufferPointer<Int>, to offset: inout Int) {
+        MultiArray.convertIndex(from: indexes, to: &offset, strides: self.strides)
+    }
+    
+    @inlinable
     public static func convertIndex(
         from indexes: [Int],
         to offset: inout Int,
         strides: [Int]
+    ) {
+        assert(strides.count == indexes.count, "Mismatch between strides and indexes count")
+        var i = 0
+        let endIndex = strides.count
+        while i < endIndex {
+            offset &+= indexes[i] &* strides[i]
+            i &+= 1
+        }
+    }
+    
+    @inlinable
+    public static func convertIndex(
+        from indexes: [Int],
+        to offset: inout Int,
+        strides: UnsafeMutableBufferPointer<Int>
     ) {
         assert(strides.count == indexes.count, "Mismatch between strides and indexes count")
         var i = 0

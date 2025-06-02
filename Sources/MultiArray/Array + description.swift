@@ -17,7 +17,7 @@ extension MultiArray: CustomStringConvertible where Element: BinaryFloatingPoint
     }
     
     /// Recursively build the string for a subtensor at `level` and linear `offset`.
-    private func _buildDescription(level: Int, offset: Int, strides: [Int]) -> String {
+    private func _buildDescription(level: Int, offset: Int, strides: UnsafeMutableBufferPointer<Int>) -> String {
         let pad = String(repeating: " ", count: level * indentWidth)
         let isLastDim = (level == shape.count - 1)
         let dim = shape[level]

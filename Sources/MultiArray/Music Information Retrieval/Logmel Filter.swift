@@ -80,7 +80,7 @@ public final class LogmelFilter {
                 
                 slice1.withoutCopying {
                     let enorm = 2 / (slice1 - slice2)
-                    weights.multiplyColumn(enorm)
+                    weights.multiplyEachRow(byEachOf: enorm)
                 }
             }
         }

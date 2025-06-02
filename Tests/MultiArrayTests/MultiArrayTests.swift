@@ -22,7 +22,7 @@ struct MultiArrayTests {
         )
         
         #expect(multiArray.shape == mlMultiArray.shape.map(\.intValue))
-        #expect(multiArray.strides == mlMultiArray.strides.map(\.intValue))
+        #expect(Array(multiArray.strides) == mlMultiArray.strides.map(\.intValue))
     }
     
     @Test
@@ -34,7 +34,7 @@ struct MultiArrayTests {
         )
         
         #expect(multiArray.shape == mlMultiArray.shape.map(\.intValue))
-        #expect(multiArray.strides == mlMultiArray.strides.map(\.intValue))
+        #expect(Array(multiArray.strides) == mlMultiArray.strides.map(\.intValue))
     }
     
     @Test
@@ -69,7 +69,7 @@ struct MultiArrayTests {
         ]
         
         multiArray.forEach { indexes, value in
-            index.append(indexes)
+            index.append(Array(indexes))
         }
         
         #expect(reference == index)
@@ -103,7 +103,7 @@ struct MultiArrayTests {
         ]
         
         multiArray.forEach { indexes, value in
-            index.append(indexes)
+            index.append(Array(indexes))
         }
         
         #expect(reference == index)

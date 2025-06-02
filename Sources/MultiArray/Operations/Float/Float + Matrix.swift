@@ -12,15 +12,15 @@ extension MultiArray where Element == Float {
     
     /// - precondition: self is Matrix (ie, 2D array)
     @inlinable
-    public func multiplyColumn(_ column: MultiArray<Float>) {
+    public func multiplyEachRow(byEachOf row: MultiArray<Float>) {
         assert(self.shape.count == 2)
-        assert(column.shape.count == 1)
-        assert(self.shape[1] == column.shape[0])
+        assert(row.shape.count == 1)
+        assert(self.shape[0] == row.shape[0])
         
-        // for each column
-        for i in 0..<self.shape[1] {
+        // for each row
+        for i in 0..<self.shape[0] {
             var result = self.view(at: [i])
-            vDSP.multiply(column.buffer[i], self.view(at: [i]), result: &result)
+            vDSP.multiply(row.buffer[i], self.view(at: [i]), result: &result)
         }
     }
     

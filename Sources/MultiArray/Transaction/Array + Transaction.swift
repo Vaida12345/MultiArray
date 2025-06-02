@@ -49,7 +49,12 @@ extension MultiArray {
         let works = body(&proxy).works
         
         var shape: [[Int]] = []
-        var strides: [[Int]] = []
+        var strides: [UnsafeMutableBufferPointer<Int>] = []
+        defer {
+            for stride in strides.dropFirst() {
+                stride.deallocate()
+            }
+        }
         
         shape.append(self.shape)
         strides.append(self.strides)
@@ -103,7 +108,7 @@ extension MultiArray {
             
             _strides.initializeElement(at: offset, to: element)
         }
-        _ = consume strides
+        
         defer {
             for strides in _strides {
                 strides.deallocate()

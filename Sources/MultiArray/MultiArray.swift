@@ -14,6 +14,8 @@ public final class MultiArray<Element>: @unchecked Sendable {
     /// The underlying buffer.
     ///
     /// Unlike `torch.tenor`, this property is always in contiguous `row-major` form.
+    ///
+    /// `self` owns this buffer.
     public let buffer: UnsafeMutableBufferPointer<Element>
     
     @usableFromInline
@@ -29,8 +31,11 @@ public final class MultiArray<Element>: @unchecked Sendable {
     public let shape: [Int]
     
     /// A number array in which each element is the number of memory locations that span the length of the corresponding dimension.
-    public let strides: [Int]
+    ///
+    /// `self` owns this buffer.
+    public let strides: UnsafeMutableBufferPointer<Int>
     
+    /// The base address underlying buffer
     @inlinable
     public var baseAddress: UnsafeMutablePointer<Element> {
         self.buffer.baseAddress!
@@ -62,6 +67,7 @@ public final class MultiArray<Element>: @unchecked Sendable {
     
     @inlinable
     deinit {
+        self.strides.deallocate()
         switch self.deallocator {
         case .free:
             buffer.deallocate()

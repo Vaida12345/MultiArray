@@ -68,9 +68,13 @@ extension MultiArray {
     ///
     /// - Complexity: O(*n*)
     @inlinable
-    public func forEach(_ block: (_ indexes: [Int], _ value: Element) -> Void) {
+    public func forEach(_ block: (_ indexes: UnsafeMutableBufferPointer<Int>, _ value: Element) -> Void) {
         var i = 0
-        var iterator = [Int](repeating: 0, count: self.strides.count)
+        let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: self.strides.count)
+        iterator.initialize(repeating: 0)
+        defer {
+            iterator.deallocate()
+        }
         
         while i != self.count {
             let value = self.buffer[i]
@@ -102,6 +106,32 @@ extension MultiArray {
     /// > This subscript is not O(*1*), as index conversion is required.
     @inlinable
     public nonisolated subscript(_ indexes: [Int]) -> Element {
+        get {
+            assert(indexes.count == shape.count, "Invalid indexes")
+            assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
+            var index = 0
+            self.convertIndex(from: indexes, to: &index)
+            
+            return self.buffer[index]
+        }
+        set {
+            assert(indexes.count == shape.count, "Invalid indexes")
+            assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
+            var index = 0
+            self.convertIndex(from: indexes, to: &index)
+            
+            self.buffer[index] = newValue
+        }
+    }
+    
+    /// Subscripts at the given `indexes`.
+    ///
+    /// - Warning: The pointer at the given `indexes` must be initialized, otherwise use ``initializeElement(at:to:)`` instead.
+    ///
+    /// > Performance Consideration:
+    /// > This subscript is not O(*1*), as index conversion is required.
+    @inlinable
+    public nonisolated subscript(_ indexes: UnsafeMutableBufferPointer<Int>) -> Element {
         get {
             assert(indexes.count == shape.count, "Invalid indexes")
             assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
