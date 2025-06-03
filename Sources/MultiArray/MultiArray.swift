@@ -47,6 +47,15 @@ public final class MultiArray<Element>: @unchecked Sendable {
         self.buffer.count
     }
     
+    /// Returns and gives up ownership towards the underlying buffer.
+    ///
+    /// `self` no longer owns the returned buffer, and you are responsible for its deallocation.
+    @inlinable
+    public func moved() -> UnsafeMutableBufferPointer<Element> {
+        self.deallocator = .none
+        return self.buffer
+    }
+    
     
     @inlinable
     internal init(
