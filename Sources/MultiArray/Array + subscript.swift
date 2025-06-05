@@ -98,6 +98,26 @@ extension MultiArray {
         }
     }
     
+    @inlinable
+    func isValid(indexes: [Int]) -> Bool {
+        var i = 0
+        while i < indexes.count {
+            guard indexes[i] < self.shape[i] else { return false }
+            i += 1
+        }
+        return true
+    }
+    
+    @inlinable
+    func isValid(indexes: UnsafeMutableBufferPointer<Int>) -> Bool {
+        var i = 0
+        while i < indexes.count {
+            guard indexes[i] < self.shape[i] else { return false }
+            i += 1
+        }
+        return true
+    }
+    
     /// Subscripts at the given `indexes`.
     ///
     /// - Warning: The pointer at the given `indexes` must be initialized, otherwise use ``initializeElement(at:to:)`` instead.
@@ -108,7 +128,7 @@ extension MultiArray {
     public nonisolated subscript(_ indexes: [Int]) -> Element {
         get {
             assert(indexes.count == shape.count, "Invalid indexes")
-            assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
+            assert(isValid(indexes: indexes), "Index out of range")
             var index = 0
             self.convertIndex(from: indexes, to: &index)
             
@@ -116,7 +136,7 @@ extension MultiArray {
         }
         set {
             assert(indexes.count == shape.count, "Invalid indexes")
-            assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
+            assert(isValid(indexes: indexes), "Index out of range")
             var index = 0
             self.convertIndex(from: indexes, to: &index)
             
@@ -134,7 +154,7 @@ extension MultiArray {
     public nonisolated subscript(_ indexes: UnsafeMutableBufferPointer<Int>) -> Element {
         get {
             assert(indexes.count == shape.count, "Invalid indexes")
-            assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
+            assert(isValid(indexes: indexes), "Index out of range")
             var index = 0
             self.convertIndex(from: indexes, to: &index)
             
@@ -142,7 +162,7 @@ extension MultiArray {
         }
         set {
             assert(indexes.count == shape.count, "Invalid indexes")
-            assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
+            assert(isValid(indexes: indexes), "Index out of range")
             var index = 0
             self.convertIndex(from: indexes, to: &index)
             

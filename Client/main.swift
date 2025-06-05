@@ -54,7 +54,6 @@ while i < output.count {
     
     i &+= 2
 }
-print("iterate", iteratorDate.distanceToNow())
 
 // MARK: - LogmelFilterBank
 
@@ -62,3 +61,4 @@ let date2 = Date()
 let melW = LogmelFilter(sampleRate: 16000, n_fft: 2048, n_mels: 229, fmin: 30, fmax: 16000 / 2)
 let a = melW(spectrogram)
 
+print(date.distanceToNow())
