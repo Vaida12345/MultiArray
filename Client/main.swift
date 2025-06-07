@@ -20,7 +20,6 @@ let date = Date()
 
 let stft = ShortTimeFourierTransform(n_fft: 2048, hop: 16000 / frames_per_second, center: false)
 var output = stft(inputs)
-var power: Float = 2
 var count = Int32(output.count)
 vDSP.multiply(output, output, result: &output)
 

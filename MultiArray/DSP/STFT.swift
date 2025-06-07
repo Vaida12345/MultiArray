@@ -37,7 +37,7 @@ public struct ShortTimeFourierTransform: Sendable {
     ///
     /// - Returns: `frequencySamples × frames × complexComponents`, `n_fft/2+1 × (1+L)/hop × 2`
     public func callAsFunction(_ input: consuming MultiArray<Float>) -> MultiArray<Float> {
-        assert(input.shape.count == 1, "Invalid input shape")
+        assert(input.shape.count == 1 || input.shape.dropLast().allSatisfy({ $0 == 1 }), "Invalid input shape")
         
         // 1. Optional reflect-padding to “center” frames, as PyTorch does by default.
         var x = consume input

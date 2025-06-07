@@ -59,7 +59,8 @@ public final class LogmelFilter {
         let fdiff = diff(mel_f)
         let ramps = subtractOuter(mel_f, fftfreqs)
         
-        for i in 0..<n_mels {
+        var i = 0
+        while i < n_mels {
             var lower = ramps.withoutCopying {
                 -ramps.view(at: [i]) / fdiff[i]
             }
@@ -69,6 +70,7 @@ public final class LogmelFilter {
             
             var weight = weights.view(at: [i]) // return by reference
             vDSP.threshold(lower, to: 0, with: .clampToThreshold, result: &weight)
+            i &+= 1
         }
         
         let slice1 = mel_f[2 ..< n_mels + 2]
@@ -172,13 +174,6 @@ public final class LogmelFilter {
         }
         
         return freqs
-        
-//        vDSP.add(-min_log_mel, mels, result: &mels)
-//        vDSP.multiply(logstep, mels, result: &mels)
-//        mels.withUnsafeMutableBufferPointer { buffer in
-//            vvexpf(buffer.baseAddress!, buffer.baseAddress!, [Int32(buffer.count)])
-//        }
-//        vDSP.multiply(min_log_hz, mels, result: &mels)
     }
     
 }
