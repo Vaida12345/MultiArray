@@ -5,7 +5,7 @@
 //  Created by Vaida on 2025-05-21.
 //
 
-extension MultiArray: CustomStringConvertible where Element: BinaryFloatingPoint & CVarArg {
+extension MultiArray: CustomStringConvertible {
     
     /// How many items to show at each end of a truncated axis
     private var edgeItems: Int { 3 }
@@ -24,8 +24,12 @@ extension MultiArray: CustomStringConvertible where Element: BinaryFloatingPoint
         
         if isLastDim {
             func transform(i: Int) -> String {
-                let v = buffer[offset + i * strides[level]]
-                return String(format: "% .4e", v)
+                let value = buffer[offset + i * strides[level]]
+                if value is any BinaryFloatingPoint {
+                    return String(format: "% .4e", value as! CVarArg)
+                } else {
+                    return "\(value)"
+                }
             }
             
             // 1D case: collect and maybe truncate

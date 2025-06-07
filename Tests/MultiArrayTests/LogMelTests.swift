@@ -12,15 +12,11 @@ import Accelerate
 
 
 @Test func logMel() {
-    let inputs = Array(0..<162048).map { sin(Float($0) * 0.001) }
+    let inputs = MultiArray<Float>(Array(0..<162048).map { sin(Float($0) * 0.001) })
     let frames_per_second = 100
-    
-    let date = Date()
     
     let stft = ShortTimeFourierTransform(n_fft: 2048, hop: 16000 / frames_per_second, center: false)
     var output = stft(inputs)
-    var power: Float = 2
-    var count = Int32(output.count)
     vDSP.multiply(output, output, result: &output)
     
     // now convert to torchlibrosa style
@@ -54,12 +50,10 @@ import Accelerate
         
         i &+= 2
     }
-    print("iterate", iteratorDate.distanceToNow())
     
     // MARK: - LogmelFilterBank
     
-    let date2 = Date()
     let melW = LogmelFilter(sampleRate: 16000, n_fft: 2048, n_mels: 229, fmin: 30, fmax: 16000 / 2)
-    let a = melW(spectrogram)
+    let _ = melW(spectrogram)
 
 }

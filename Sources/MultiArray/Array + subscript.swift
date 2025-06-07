@@ -36,7 +36,7 @@ extension MultiArray {
     @inlinable
     public nonisolated func initializeElement(at indexes: [Int], to value: consuming Element) {
         assert(indexes.count == shape.count, "Invalid indexes")
-        assert(zip(indexes, self.shape).allSatisfy(<), "Index out of range")
+        assert(isValid(indexes: indexes), "Index out of range")
         var index = 0
         self.convertIndex(from: indexes, to: &index)
         
@@ -149,7 +149,7 @@ extension MultiArray {
     /// - Warning: The pointer at the given `indexes` must be initialized, otherwise use ``initializeElement(at:to:)`` instead.
     ///
     /// > Performance Consideration:
-    /// > This subscript is not O(*1*), as index conversion is required.
+    /// > This subscript is not O(*1*), as index conversion is required. Nevertheless, this method is the most performant variant of `subscript`.
     @inlinable
     public nonisolated subscript(_ indexes: UnsafeMutableBufferPointer<Int>) -> Element {
         get {

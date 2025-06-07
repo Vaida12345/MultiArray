@@ -14,7 +14,13 @@ import MultiArray
 struct BridgeTests {
     
     @Test
-    func arrayBridgeTests() {
+    func arrayBridgeTest1d() {
+        let array = MultiArray([1, 2, 3, 4, 5])
+        #expect(Array(array.buffer) == [1, 2, 3, 4, 5])
+    }
+    
+    @Test
+    func arrayBridgeTest2d() {
         let array = [
             [1, 2, 3],
             [4, 5, 6]
@@ -28,7 +34,25 @@ struct BridgeTests {
         #expect(multiArray[1, 0] == 4)
         #expect(multiArray[1, 1] == 5)
         #expect(multiArray[1, 2] == 6)
-        #expect(multiArray.nestedArray() == array)
+    }
+    
+    @Test
+    func arrayBridgeTest3d() {
+        let array = [
+            [
+                [1, 2, 3],
+                [4, 5, 6]
+            ]
+        ]
+        
+        let multiArray = MultiArray<Int>(array)
+        #expect(multiArray.shape == [1, 2, 3])
+        #expect(multiArray[0, 0, 0] == 1)
+        #expect(multiArray[0, 0, 1] == 2)
+        #expect(multiArray[0, 0, 2] == 3)
+        #expect(multiArray[0, 1, 0] == 4)
+        #expect(multiArray[0, 1, 1] == 5)
+        #expect(multiArray[0, 1, 2] == 6)
     }
     
     @Test

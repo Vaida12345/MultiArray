@@ -11,8 +11,9 @@ import Essentials
 import Accelerate
 
 
+
 // MARK: - spectrogram
-let inputs = Array(0..<162048).map { sin(Float($0) * 0.001) }
+let inputs = MultiArray<Float>(Array(0..<162048).map { sin(Float($0) * 0.001) })
 let frames_per_second = 100
 
 let date = Date()

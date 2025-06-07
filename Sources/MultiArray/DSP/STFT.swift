@@ -36,12 +36,13 @@ public struct ShortTimeFourierTransform: Sendable {
     /// - Parameter input: 1D array, `L`
     ///
     /// - Returns: `frequencySamples × frames × complexComponents`, `n_fft/2+1 × (1+L)/hop × 2`
-    public func callAsFunction(_ input: consuming Array<Float>) -> MultiArray<Float> {
+    public func callAsFunction(_ input: consuming MultiArray<Float>) -> MultiArray<Float> {
+        assert(input.shape.count == 1, "Invalid input shape")
+        
         // 1. Optional reflect-padding to “center” frames, as PyTorch does by default.
         var x = consume input
-        let padAmount = n_fft / 2
         if center {
-            x = reflectPad(x, pad: padAmount)
+            x = x.reflectionPad(size: n_fft / 2)
         }
         
         // 2. Prepare the Hann window.
@@ -64,18 +65,15 @@ public struct ShortTimeFourierTransform: Sendable {
         var frameIndex = 0
         while frameIndex < nFrames {
             let start = frameIndex * hop
-            let end   = start + n_fft
             
             // Extract the current frame and apply the Hann window.
-            var frame = Array(input[start..<end])
-            vDSP.multiply(frame, window, result: &frame)  // in-place multiply by Hann, is copied anyway
+            let buffer = UnsafeMutableBufferPointer<Float>.allocate(capacity: n_fft)
+            vDSP_vmul(input.baseAddress + start, 1, window.baseAddress, 1, buffer.baseAddress!, 1, vDSP_Length(n_fft))
             
-            frame.withUnsafeMutableBufferPointer { buffer in
-                let frame = MultiArray<Float>(bytesNoCopy: buffer, shape: [buffer.count], deallocator: .none)
-                dft(frame, result: result.baseAddress + frameIndex * 2, stride: result.strides[0] / 2)
-            }
+            let frame = MultiArray<Float>(bytesNoCopy: buffer, shape: [buffer.count], deallocator: .free)
+            dft(frame, result: result.baseAddress + frameIndex * 2, stride: result.strides[0] / 2)
             
-            frameIndex += 1
+            frameIndex &+= 1
         }
         
         return result
@@ -84,23 +82,10 @@ public struct ShortTimeFourierTransform: Sendable {
     /// Create a normalized Hann window of size nFFT.
     ///
     /// Generate a Hann window matching PyTorch's `torch.hann_window(window_length=nFFT, periodic=True)`
-    private func hannWindow(count: Int) -> [Float] {
-        Array<Float>(unsafeUninitializedCapacity: count) { buffer, initializedCount in
-            initializedCount = count
-            vDSP_hann_window(buffer.baseAddress!, vDSP_Length(count), Int32(vDSP_HANN_DENORM))
-        }
-    }
-    
-    /// 1D “reflect” padding that matches PyTorch’s pad_mode='reflect'.
-    /// For example, if x = [1,2,3,4,5] and pad=2, the result becomes [3,2, 1,2,3,4,5, 4,3].
-    private func reflectPad(_ input: [Float], pad: Int) -> [Float] {
-        precondition(pad <= input.count - 1,
-                     "Reflect padding must be <= (input.count - 1).")
-        // Left side is input[1..pad], reversed
-        let leftSlice = input[1...pad].reversed()
-        // Right side is input[(end - pad - 1)..(end - 1)], reversed
-        let rightSlice = input[(input.count - pad - 1)..<(input.count - 1)].reversed()
-        return Array(leftSlice) + input + Array(rightSlice)
+    private func hannWindow(count: Int) -> MultiArray<Float> {
+        let result = MultiArray<Float>.allocate([count])
+        vDSP_hann_window(result.baseAddress, vDSP_Length(count), Int32(vDSP_HANN_DENORM))
+        return result
     }
 }
 

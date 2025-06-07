@@ -26,7 +26,7 @@ struct DSPTests {
         @Test(.tags(.stft))
         func length16() {
             let stft = ShortTimeFourierTransform(n_fft: 8, hop: 4)
-            let input = (0..<16).map(Float.init)
+            let input = MultiArray((0..<16).map(Float.init))
             let data = stft(input)
             
             let reference: [Float] = [4.585787, 0.0, 16.0, 0.0, 32.0, 0.0, 48.0, 0.0, 54.414215, 0.0, -0.58578646, 1.3155118e-08, -8.0, 3.8284268, -16.0, 3.8284264, -24.0, 3.8284266, -28.414215, -2.4142137, -2.0, -0.0, 3.6211688e-08, -0.82842684, 3.6211667e-08, -0.82842636, 3.621171e-08, -0.8284273, 0.99999994, 1.4142132, 0.58578646, 1.3155118e-08, 0.0, -0.17157304, 0.0, -0.17157304, 0.0, -0.1715734, 0.41421413, -0.41421366, -0.5857866, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.41421318, 0.0]
@@ -40,10 +40,10 @@ struct DSPTests {
     struct ISTFTTests {
         
         func length(count: Int, hop: Int) {
-            let input = (0..<count).map(Float.init)
+            let input = MultiArray<Float>((0..<count).map(Float.init))
             let transform = ShortTimeFourierTransform(n_fft: count, hop: hop)(input)
             let output = InverseShortTimeFourierTransform(n_fft: count, hop: hop)(transform)
-            let isTrue = input.contentsEqual(output, tolerance: 1e-2)
+            let isTrue = input.contentsEqual(MultiArray(output), tolerance: 1e-2)
             #expect(isTrue, "failed for count \(count), tolerance \(1e-2)")
         }
         

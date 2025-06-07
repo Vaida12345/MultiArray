@@ -39,8 +39,9 @@ extension MultiArray {
     
     @inlinable
     func captureReference() -> Data.Deallocator {
-        .custom { [self] _, _ in
-            _ = self // capture reference until deallocator is called, at which point the ARC is safe to throw this array.
+        let unmanaged = Unmanaged.passRetained(self)
+        return .custom { _, _ in
+            unmanaged.release()
         }
     }
     

@@ -17,5 +17,11 @@ struct MethodsTests {
         #expect(y.shape == [4, 3])
     }
     
+    @Test func testReflectPad() {
+        let x = MultiArray([1, 2, 3, 4, 5])
+        let y = x.reflectionPad(size: 3)
+        #expect(Array(y) == [4, 3, 2, 1, 2, 3, 4, 5, 4, 3, 2])
+    }
+    
     
 }

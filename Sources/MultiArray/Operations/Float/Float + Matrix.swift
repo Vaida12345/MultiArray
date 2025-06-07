@@ -18,13 +18,20 @@ extension MultiArray where Element == Float {
         assert(self.shape[0] == row.shape[0])
         
         // for each row
-        for i in 0..<self.shape[0] {
-            var result = self.view(at: [i])
-            vDSP.multiply(row.buffer[i], self.view(at: [i]), result: &result)
+        var i = 0
+        while i < self.shape[0] {
+            vDSP_vsmul(self.view(at: [i]).baseAddress, 1, row.baseAddress + i, self.view(at: [i]).baseAddress, 1, vDSP_Length(self.shape[1]))
+            i &+= 1
         }
     }
     
+    /// Transpose a 2D array.
+    ///
+    /// For generic transpose, use ``withTransaction(_:)`` with ``TransactionProxy/transposed(_:_:)``.
+    ///
     /// - precondition: self is Matrix (ie, 2D array)
+    ///
+    /// - Warning: This function doesn’t support in-place operation.
     @inlinable
     public func transposed() -> MultiArray<Float> {
         assert(self.shape.count == 2)
