@@ -37,14 +37,6 @@ extension MLMultiArray {
 
 extension MultiArray {
     
-    @inlinable
-    func captureReference() -> Data.Deallocator {
-        let unmanaged = Unmanaged.passRetained(self)
-        return .custom { _, _ in
-            unmanaged.release()
-        }
-    }
-    
     public convenience init(_ array: MLMultiArray) {
         let dataType: MLMultiArrayDataType
         switch Element.self {

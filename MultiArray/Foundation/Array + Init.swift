@@ -84,4 +84,13 @@ extension MultiArray {
         self.init(bytesNoCopy: UnsafeMutableBufferPointer(start: bytesNoCopy, count: count), shape: shape, deallocator: deallocator)
     }
     
+    
+    @inlinable
+    func captureReference() -> Data.Deallocator {
+        let unmanaged = Unmanaged.passRetained(self)
+        return .custom { _, _ in
+            unmanaged.release()
+        }
+    }
+    
 }

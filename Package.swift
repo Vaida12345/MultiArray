@@ -24,8 +24,8 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
-        .target(name: "MultiArray", dependencies: ["Essentials", "FinderItem"]),
-        .testTarget(name: "MultiArrayTests", dependencies: ["MultiArray"]),
+        .target(name: "MultiArray", dependencies: ["Essentials", "FinderItem"], path: "MultiArray"),
+        .testTarget(name: "MultiArrayTests", dependencies: ["MultiArray"], path: "Tests"),
         .executableTarget(name: "Client", dependencies: ["MultiArray"], path: "Client")
     ]
 )

@@ -8,7 +8,6 @@
 import FinderItem
 
 
-
 extension MultiArray {
     
     public func load(from source: FinderItem) throws {
