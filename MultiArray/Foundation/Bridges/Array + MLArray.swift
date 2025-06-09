@@ -10,6 +10,9 @@ import CoreML
 
 extension MLMultiArray {
     
+    /// Creates the `MLMultiArray` from the given `MultiArray`.
+    ///
+    /// `self` indirectly owns the input on return, and is responsible for its (automatic) release.
     public convenience init<T>(_ array: MultiArray<T>) throws {
         let dataType: MLMultiArrayDataType
         switch T.self {
@@ -22,13 +25,14 @@ extension MLMultiArray {
         default: fatalError("Unsupported type \(T.self)")
         }
         
+        let unmanaged = Unmanaged.passRetained(array)
         try self.init(
             dataPointer: array.baseAddress,
             shape: array.shape.map({ NSNumber(value: $0) }),
             dataType: dataType,
             strides: array.strides.map({ NSNumber(value: $0) })
-        ) { [array] _ in
-            _ = array // capture is enough, let Swift does the rest
+        ) { _ in
+            unmanaged.release()
         }
     }
     
@@ -37,6 +41,11 @@ extension MLMultiArray {
 
 extension MultiArray {
     
+    /// Creates the `MultiArray` from the given `MLMultiArray`.
+    ///
+    /// `self` indirectly owns the input on return, and is responsible for its (automatic) release.
+    ///
+    /// - Warning: Because the ownership is indirect, `MultiArray` prevents you from removing such ownership by calling methods such as ``moved()``.
     public convenience init(_ array: MLMultiArray) {
         let dataType: MLMultiArrayDataType
         switch Element.self {
@@ -52,11 +61,13 @@ extension MultiArray {
         
         let shape = array.shape.map(\.intValue)
         let count = shape.reduce(1, *)
+        let unmanaged = Unmanaged.passRetained(array)
+        
         self.init(
             bytesNoCopy: .init(start: array.dataPointer.assumingMemoryBound(to: Element.self), count: count),
             shape: shape,
-            deallocator: .custom({ [array] _,_ in
-                _ = array // capture
+            deallocator: .custom({ _, _ in
+                unmanaged.release()
             })
         )
     }

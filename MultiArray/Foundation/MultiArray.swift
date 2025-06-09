@@ -50,8 +50,15 @@ public final class MultiArray<Element>: @unchecked Sendable {
     /// Returns and gives up ownership towards the underlying buffer.
     ///
     /// `self` no longer owns the returned buffer, and you are responsible for its deallocation.
+    ///
+    /// - precondition: The underlying buffer must be allocated by itself (``allocate(_:)-(Int...)``) or by referencing explicit a buffer that you own (``init(bytesNoCopy:shape:deallocator:)-(UnsafeMutablePointer<Element>,_,_)``). This method does not work when the ownership is indirect (initialize from `MLMultiArray`).
     @inlinable
     public func moved() -> UnsafeMutableBufferPointer<Element> {
+        switch self.deallocator {
+        case .free, .none: break
+        default: preconditionFailure("Cannot remove ownership when it is indirect.")
+        }
+        
         self.deallocator = .none
         return self.buffer
     }

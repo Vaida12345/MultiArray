@@ -8,6 +8,8 @@
 import Testing
 @testable
 import MultiArray
+import Accelerate
+
 
 @Suite
 struct OperationsTests {
@@ -71,6 +73,13 @@ struct OperationsTests {
     @Test func matmul() {
         let a = MultiArray<Float>([[1, 2], [3, 4]] as [[Float]])
         #expect(MultiArray.matmul(a, a).contentsEqual(MultiArray<Float>([[7, 10], [15, 22]] as [[Float]])))
+    }
+    
+    @Test func clip() async throws {
+        var a = MultiArray<Float>([0, 0])
+        vForce.log10(a, result: &a)
+        a.clip(to: -1...1)
+        #expect(Array(a) == [-1, -1])
     }
     
     
