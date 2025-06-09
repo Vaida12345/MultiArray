@@ -11,9 +11,6 @@ import Accelerate
 extension MultiArray where Element == Float {
     
     /// Performs element-wise multiplication.
-    ///
-    /// > Optimization Tip:
-    /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
     public static func * (lhs: MultiArray<Float>, factor: Float) -> MultiArray<Float> {
         let result = MultiArray.conditionalAllocate(referencing: lhs)
@@ -26,9 +23,6 @@ extension MultiArray where Element == Float {
     }
     
     /// Performs element-wise multiplication.
-    ///
-    /// > Optimization Tip:
-    /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
     public static func * (factor: Float, lhs: MultiArray<Float>) -> MultiArray<Float> {
         lhs * factor
@@ -44,9 +38,6 @@ extension MultiArray where Element == Float {
     
     
     /// Performs element-wise division.
-    ///
-    /// > Optimization Tip:
-    /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
     public static func / (lhs: MultiArray<Float>, factor: Float) -> MultiArray<Float> {
         var result = MultiArray.conditionalAllocate(referencing: lhs)
@@ -55,9 +46,6 @@ extension MultiArray where Element == Float {
     }
     
     /// Performs element-wise division.
-    ///
-    /// > Optimization Tip:
-    /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
     public static func / (factor: Float, rhs: MultiArray<Float>) -> MultiArray<Float> {
         var result = MultiArray.conditionalAllocate(referencing: rhs)

@@ -10,8 +10,6 @@ import Accelerate
 
 extension MultiArray<Float> {
     
-    /// > Optimization Tip:
-    /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
     public prefix static func - (array: MultiArray<Float>) -> MultiArray<Float> {
         let result = MultiArray.conditionalAllocate(referencing: array)
@@ -26,9 +24,6 @@ extension MultiArray<Float> {
     }
     
     /// Performs element-wise addition on two matrices.
-    ///
-    /// > Optimization Tip:
-    /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
     public static func + (lhs: MultiArray<Float>, rhs: MultiArray<Float>) -> MultiArray<Float> {
         assert(lhs.shape == rhs.shape, "Cannot add MultiArrays of shapes \(lhs.shape) and \(rhs.shape)")
@@ -48,9 +43,6 @@ extension MultiArray<Float> {
     }
     
     /// Performs element-wise subtraction on two matrices.
-    ///
-    /// > Optimization Tip:
-    /// > Use mutating alternative to prevent additional memory allocation.
     @inlinable
     public static func - (lhs: MultiArray<Float>, rhs: MultiArray<Float>) -> MultiArray<Float> {
         assert(lhs.shape == rhs.shape, "Cannot add MultiArrays of shapes \(lhs.shape) and \(rhs.shape)")
@@ -68,6 +60,12 @@ extension MultiArray<Float> {
         
         vDSP_vsub(lhs.baseAddress, 1, rhs.baseAddress, 1, lhs.baseAddress, 1, vDSP_Length(lhs.count))
     }
-    
-    
+}
+
+
+/// Returns the absolute value of each element in the supplied single-precision vector.
+public func abs(_ input: MultiArray<Float>) -> MultiArray<Float> {
+    var result = MultiArray.conditionalAllocate(referencing: input)
+    vDSP.absolute(input, result: &result)
+    return result
 }
