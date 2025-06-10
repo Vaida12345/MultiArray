@@ -6,21 +6,18 @@
 //
 
 
-extension MultiArray {
+public struct MultiArrayTransactionProxy {
     
-    public final class TransactionProxy {
-        
-        @usableFromInline
-        var works: [any WorkProtocol]
-        
-        /// The shape always reflects the current shape.
-        public var shape: [Int] = []
-        
-        @inlinable
-        init(works: [any WorkProtocol]) {
-            self.works = works
-        }
-        
+    @usableFromInline
+    var works: [WorkItem]
+    
+    /// The shape always reflects the current shape.
+    public var shape: [Int] = []
+    
+    @inlinable
+    init(works: [WorkItem], shape: [Int]) {
+        self.works = works
+        self.shape = shape
     }
     
 }

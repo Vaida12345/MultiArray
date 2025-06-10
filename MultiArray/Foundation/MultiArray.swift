@@ -16,23 +16,28 @@ public final class MultiArray<Element>: @unchecked Sendable {
     /// Unlike `torch.tenor`, this property is always in contiguous `row-major` form.
     ///
     /// `self` owns this buffer.
+    @exclusivity(unchecked)
     public let buffer: UnsafeMutableBufferPointer<Element>
     
     @usableFromInline
+    @exclusivity(unchecked)
     var deallocator: Data.Deallocator
     
     /// See Array + Copy.swift
     @usableFromInline
+    @exclusivity(unchecked)
     internal let operatorsShouldReturnCopiedSelf: OperatorsShouldReturnCopiedSelf
     
     /// The array multidimensional shape as a number array in which each element’s value is the size of the corresponding dimension.
     ///
     /// For a 2D array (matrix), the shapes are in height-width order.
+    @exclusivity(unchecked)
     public let shape: [Int]
     
     /// A number array in which each element is the number of memory locations that span the length of the corresponding dimension.
     ///
     /// `self` owns this buffer.
+    @exclusivity(unchecked)
     public let strides: UnsafeMutableBufferPointer<Int>
     
     /// The base address underlying buffer

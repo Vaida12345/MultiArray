@@ -65,26 +65,6 @@ extension MultiArray {
         MultiArray.convertIndex(from: offset, to: &indexes, strides: strides)
     }
     
-    /// - Warning: This method does not check the length of `indexes`, and uses `strides` for reference.
-    @inlinable
-    public static func convertIndex(
-        from offset: Int,
-        to indexes: UnsafeMutableBufferPointer<Int>,
-        strides: UnsafeMutableBufferPointer<Int>
-    ) {
-        var rem = offset
-        var i = 0
-        let endIndex = strides.count
-        while i < endIndex {
-            // computes both quotient & remainder in one machine‐instruction
-            let qr = rem.quotientAndRemainder(dividingBy: strides[i])
-            indexes[i] = qr.quotient
-            rem = qr.remainder
-            
-            i &+= 1
-        }
-    }
-    
     // MARK: - indexes to offset
     
     @inlinable
@@ -94,7 +74,7 @@ extension MultiArray {
     
     @inlinable
     public func convertIndex(from indexes: UnsafeMutableBufferPointer<Int>, to offset: inout Int) {
-        MultiArray.convertIndex(from: indexes, to: &offset, strides: self.strides)
+        MultiArrayConvertIndex(from: indexes, to: &offset, strides: self.strides)
     }
     
     @inlinable
@@ -139,19 +119,40 @@ extension MultiArray {
         MultiArray.convertIndex(from: indexes, to: &offset, strides: strides)
     }
     
-    /// - Warning: This method does not check the length of `indexes`, and uses `strides` for reference.
-    @inlinable
-    public static func convertIndex(
-        from indexes: UnsafeMutableBufferPointer<Int>,
-        to offset: inout Int,
-        strides: UnsafeMutableBufferPointer<Int>
-    ) {
-        var i = 0
-        let endIndex = strides.count
-        while i < endIndex {
-            offset &+= indexes[i] &* strides[i]
-            i &+= 1
-        }
+}
+
+/// - Warning: This method does not check the length of `indexes`, and uses `strides` for reference.
+@inlinable
+public func MultiArrayConvertIndex(
+    from offset: Int,
+    to indexes: UnsafeMutableBufferPointer<Int>,
+    strides: UnsafeMutableBufferPointer<Int>
+) {
+    var rem = offset
+    var i = 0
+    let endIndex = strides.count
+    while i < endIndex {
+        // computes both quotient & remainder in one machine‐instruction
+        let qr = rem.quotientAndRemainder(dividingBy: strides[i])
+        indexes[i] = qr.quotient
+        rem = qr.remainder
+        
+        i &+= 1
     }
-    
+}
+
+
+/// - Warning: This method does not check the length of `indexes`, and uses `strides` for reference.
+@inlinable
+public func MultiArrayConvertIndex(
+    from indexes: UnsafeMutableBufferPointer<Int>,
+    to offset: inout Int,
+    strides: UnsafeMutableBufferPointer<Int>
+) {
+    var i = 0
+    let endIndex = strides.count
+    while i < endIndex {
+        offset &+= indexes[i] &* strides[i]
+        i &+= 1
+    }
 }

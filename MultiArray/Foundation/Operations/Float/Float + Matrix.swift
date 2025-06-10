@@ -27,7 +27,7 @@ extension MultiArray where Element == Float {
     
     /// Transpose a 2D array.
     ///
-    /// For generic transpose, use ``withTransaction(_:)`` with ``TransactionProxy/transposed(_:_:)``.
+    /// For generic transpose, use ``withTransaction(_:)`` with ``MultiArrayTransactionProxy/transposed(_:_:)``.
     ///
     /// - precondition: self is Matrix (ie, 2D array)
     ///

@@ -22,7 +22,6 @@ import Accelerate
     // now convert to torchlibrosa style
     let spectrogram = MultiArray<Float>.allocate(1001, 1025)
     
-    let iteratorDate = Date()
     var i = 0
     let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: 2)
     iterator.initialize(repeating: 0)

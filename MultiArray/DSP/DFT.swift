@@ -19,6 +19,7 @@ public final class DiscreteFourierTransform {
     
     private let buffer: UnsafeMutableBufferPointer<Float>
     
+    @exclusivity(unchecked)
     private var splitComplex: DSPSplitComplex
     
     

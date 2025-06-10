@@ -7,10 +7,54 @@
 
 import Testing
 import MultiArray
+import os
 
 
 @Suite
 struct TransactionTests {
+    
+//    @Suite(.disabled())
+    struct Trace {
+        @Test func transpose() async throws {
+            let multiArray = MultiArray<Float>.random(200, 400, 200)
+            let signpost = OSSignposter(subsystem: "Trace", category: .pointsOfInterest)
+            let _ = signpost.withIntervalSignpost("Transpose") {
+                let result = multiArray.withTransaction { proxy in
+                    let proxy = proxy.transposed(0, 1)
+                    return proxy
+                }
+                return result
+            }
+        }
+        
+        @Test func convertIndexForward() async throws {
+            var index: Int = 0
+            let length = 1000_000
+            let indexes = UnsafeMutableBufferPointer<Int>.allocate(capacity: length)
+            _ = indexes.initialize(from: 1...length)
+            let strides = UnsafeMutableBufferPointer<Int>.allocate(capacity: length)
+            _ = strides.initialize(from: 1...length)
+            
+            let signpost = OSSignposter(subsystem: "Trace", category: .pointsOfInterest)
+            let _ = signpost.withIntervalSignpost("Convert") {
+                MultiArrayConvertIndex(from: indexes, to: &index, strides: strides)
+            }
+        }
+        
+        @Test func convertIndexBackward() async throws {
+            let index: Int = 0
+            let length = 100
+            let indexes = UnsafeMutableBufferPointer<Int>.allocate(capacity: length)
+            _ = indexes.initialize(from: 1...length)
+            let strides = UnsafeMutableBufferPointer<Int>.allocate(capacity: length)
+            _ = strides.initialize(from: 1...length)
+            
+            let signpost = OSSignposter(subsystem: "Trace", category: .pointsOfInterest)
+            let _ = signpost.withIntervalSignpost("Convert") {
+                MultiArrayConvertIndex(from: index, to: indexes, strides: strides)
+            }
+        }
+    }
     
     @Test func transpose() async throws {
         let multiArray = MultiArray<Float>.random(2, 4, 2)
@@ -34,7 +78,9 @@ struct TransactionTests {
     @Test func reshape() async throws {
         let multiArray = MultiArray<Float>.random(2, 7, 3)
         let new = multiArray.withTransaction { proxy in
-            proxy.reshape(-1, 7)
+            let proxy = proxy.reshape(-1, 7)
+            assert(proxy.shape == [6, 7])
+            return proxy
         }
         
         #expect(new == multiArray.reshape(-1, 7))
