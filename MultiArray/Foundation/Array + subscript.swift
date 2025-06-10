@@ -70,31 +70,34 @@ extension MultiArray {
     @inlinable
     public func forEach(_ block: (_ indexes: UnsafeMutableBufferPointer<Int>, _ value: Element) -> Void) {
         var i = 0
-        let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: self.strides.count)
+        let iteratorCount = self.strides.count
+        let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: iteratorCount)
         iterator.initialize(repeating: 0)
-        defer {
-            iterator.deallocate()
-        }
+        defer { iterator.deallocate() }
         
-        while i != self.count {
-            let value = self.buffer[i]
-            block(iterator, value)
-            
-            iterator[iterator.count - 1] &+= 1
-            
-            // carry
-            var ishape = self.shape.count - 1
-            while ishape != 0 {
-                if iterator[ishape] == self.shape[ishape] {
-                    iterator[ishape] = 0
-                    iterator[ishape - 1] &+= 1
-                } else {
-                    break
+        let upperBound = self.count
+        
+        self.shape.withUnsafeBufferPointer { shape in
+            while i < upperBound {
+                let value = self.buffer[i]
+                block(iterator, value)
+                
+                iterator[iteratorCount &- 1] &+= 1
+                
+                // carry
+                var ishape = iteratorCount &- 1
+                while ishape != 0 {
+                    if iterator[ishape] == shape[ishape] {
+                        iterator[ishape] = 0
+                        iterator[ishape &- 1] &+= 1
+                    } else {
+                        break
+                    }
+                    ishape &-= 1
                 }
-                ishape &-= 1
+                
+                i &+= 1
             }
-            
-            i &+= 1
         }
     }
     
@@ -103,7 +106,7 @@ extension MultiArray {
         var i = 0
         while i < indexes.count {
             guard indexes[i] < self.shape[i] else { return false }
-            i += 1
+            i &+= 1
         }
         return true
     }
