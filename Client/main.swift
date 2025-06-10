@@ -37,30 +37,27 @@ let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: 2)
 iterator.initialize(repeating: 0)
 defer { iterator.deallocate() }
 
-output.shape.withUnsafeBufferPointer { shape in
-    let outputCount = output.count
-    while i < outputCount {
-        // work
-        iterator.swapAt(0, 1)
-        spectrogram[iterator] = output.buffer[i] + output.buffer[i + 1]
-        iterator.swapAt(0, 1)
-        
-        iterator[1] &+= 1
-        
-        // carry
-        var ishape = 1
-        while ishape != 0 {
-            if iterator[ishape] == shape[ishape] {
-                iterator[ishape] = 0
-                iterator[ishape &- 1] &+= 1
-            } else {
-                break
-            }
-            ishape &-= 1
+
+let outputCount = output.count
+while i < outputCount {
+    // work
+    spectrogram[iterator[1], iterator[0]] = output.buffer[i] + output.buffer[i + 1]
+    
+    iterator[1] &+= 1
+    
+    // carry
+    var ishape = 1
+    while ishape != 0 {
+        if iterator[ishape] == output.shape[ishape] {
+            iterator[ishape] = 0
+            iterator[ishape &- 1] &+= 1
+        } else {
+            break
         }
-        
-        i &+= 2
+        ishape &-= 1
     }
+    
+    i &+= 2
 }
 
 signpost.emitEvent("Spectrogram", id: signpostID)
