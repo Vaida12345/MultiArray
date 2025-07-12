@@ -73,10 +73,9 @@ extension Array {
         }
     }
     
-    /// Creates array using the given `MultiArray`.
+    /// Creates a flattened array using the given `MultiArray`.
     @inlinable
     public init(_ array: MultiArray<Element>) {
         self.init(array.buffer)
     }
-    
 }
