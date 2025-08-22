@@ -183,4 +183,11 @@ extension MultiArray {
         set { self[indexes] = newValue }
     }
     
+    /// Subscripts at the given `offset`
+    @inlinable
+    public nonisolated subscript(offset: Int) -> Element {
+        get { self.buffer[offset] }
+        set { self.buffer[offset] = newValue }
+    }
+    
 }

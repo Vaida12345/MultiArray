@@ -14,6 +14,7 @@ import os
 
 
 // MARK: - spectrogram
+let date = Date()
 let inputs = MultiArray<Float>(Array(0..<162048).map { sin(Float($0) * 0.001) })
 let frames_per_second = 100
 
@@ -40,8 +41,8 @@ defer { iterator.deallocate() }
 
 let outputCount = output.count
 while i < outputCount {
-    // work
-    spectrogram[iterator[1], iterator[0]] = output.buffer[i] + output.buffer[i + 1]
+    // work, iterator[1], iterator[0]
+    spectrogram[iterator[1] * spectrogram.strides[0] + iterator[0]] = output.buffer[i] + output.buffer[i + 1]
     
     iterator[1] &+= 1
     
@@ -59,6 +60,7 @@ while i < outputCount {
     
     i &+= 2
 }
+print(spectrogram)
 
 signpost.emitEvent("Spectrogram", id: signpostID)
 
@@ -70,3 +72,4 @@ let a = melW(spectrogram)
 
 
 signpost.endInterval("Logmel", state)
+print(date.distanceToNow())
