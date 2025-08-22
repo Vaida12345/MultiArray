@@ -15,7 +15,7 @@ extension MultiArray {
     @inlinable
     public convenience init(_ array: [Element]) {
         let buffer = UnsafeMutableBufferPointer<Element>.allocate(capacity: array.count)
-        _ = array.withUnsafeBytes {
+        array.withUnsafeBytes {
             buffer.copy(from: $0.baseAddress!, count: buffer.count)
         }
         self.init(bytesNoCopy: buffer, shape: [buffer.count], deallocator: .free)

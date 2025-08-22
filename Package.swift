@@ -18,8 +18,8 @@ let package = Package(
             targets: ["MultiArray"]),
     ],
     dependencies: [
-        .package(url: "https://www.github.com/Vaida12345/Essentials", from: "1.0.43"),
-        .package(url: "https://www.github.com/Vaida12345/FinderItem", from: "1.0.14"),
+        .package(url: "https://github.com/Vaida12345/Essentials.git", from: "1.1.0"),
+        .package(url: "https://github.com/Vaida12345/FinderItem.git", from: "1.2.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
