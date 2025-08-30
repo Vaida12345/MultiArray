@@ -34,28 +34,22 @@ signpost.emitEvent("Iterate", id: signpostID)
 let spectrogram = MultiArray<Float>.allocate(1001, 1025)
 
 var i = 0
-let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: 2)
-iterator.initialize(repeating: 0)
-defer { iterator.deallocate() }
+var it0 = 0
+var it1 = 0
+let stride = spectrogram.strides[0]
+let shape = output.shape[1]
 
 
 let outputCount = output.count
 while i < outputCount {
     // work, iterator[1], iterator[0]
-    spectrogram[iterator[1] * spectrogram.strides[0] + iterator[0]] = output.buffer[i] + output.buffer[i + 1]
-    
-    iterator[1] &+= 1
+    spectrogram[offset: it1 * stride &+ it0] = output.buffer[i] + output.buffer[i &+ 1]
+    it1 &+= 1
     
     // carry
-    var ishape = 1
-    while ishape != 0 {
-        if iterator[ishape] == output.shape[ishape] {
-            iterator[ishape] = 0
-            iterator[ishape &- 1] &+= 1
-        } else {
-            break
-        }
-        ishape &-= 1
+    if it1 == shape {
+        it1 = 0
+        it0 &+= 1
     }
     
     i &+= 2
