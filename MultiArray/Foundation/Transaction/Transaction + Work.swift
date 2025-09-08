@@ -142,7 +142,7 @@ extension MultiArrayTransactionProxy {
     }
     
     @inlinable
-    public mutating func reshape(_ shape: Int...) -> MultiArrayTransactionProxy {
+    public func reshape(_ shape: Int...) -> MultiArrayTransactionProxy {
         self.reshape(shape)
     }
     
