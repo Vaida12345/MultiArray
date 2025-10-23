@@ -13,7 +13,7 @@ extension MultiArray {
     
     /// Initialize using the given array.
     @inlinable
-    public convenience init(_ array: [Element]) {
+    public convenience init(_ array: Array<Element>) {
         let buffer = UnsafeMutableBufferPointer<Element>.allocate(capacity: array.count)
         array.withUnsafeBytes {
             buffer.copy(from: $0.baseAddress!, count: buffer.count)
@@ -23,7 +23,7 @@ extension MultiArray {
     
     /// Initialize using the given array.
     @inlinable
-    public convenience init(_ array: [[Element]]) {
+    public convenience init(_ array: some Collection<Array<Element>>) {
         let shape = [array.count, array.first?.count ?? 0]
         assert(array.allSatisfy({ $0.count == shape[1] }))
         
@@ -41,7 +41,7 @@ extension MultiArray {
     
     /// Initialize using the given array.
     @inlinable
-    public convenience init(_ array: [[[Element]]]) {
+    public convenience init(_ array: some Collection<some Collection<[Element]>>) {
         let shape = [array.count, array.first?.count ?? 0, array.first?.first?.count ?? 0]
         assert(array.allSatisfy({ $0.count == shape[1] && $0.allSatisfy({ $0.count == shape[2] }) }))
         
