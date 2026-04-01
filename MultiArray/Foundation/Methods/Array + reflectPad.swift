@@ -13,7 +13,7 @@ extension MultiArray {
     /// Pads the `MultiArray` using the reflection of `self` boundary.
     @inlinable
     public func reflectionPad(size pad: Int) -> MultiArray {
-        assert(self.shape.count == 1)
+        assert(self.shape.last == self.count, "Only 1D `MultiArray` is supported")
         assert(pad <= self.count - 1, "Invalid pad size")
         
         let result = MultiArray.allocate([self.count + 2 * pad])
