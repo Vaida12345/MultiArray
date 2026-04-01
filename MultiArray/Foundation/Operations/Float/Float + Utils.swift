@@ -24,4 +24,14 @@ extension MultiArray<Float> {
         vDSP.fill(&result, with: value)
     }
     
+    @inlinable
+    public func min() -> Float {
+        vDSP.minimum(self)
+    }
+    
+    @inlinable
+    public func max() -> Float {
+        vDSP.maximum(self)
+    }
+    
 }
