@@ -12,6 +12,7 @@ import Foundation
 extension MultiArray {
     
     /// Initialize using the given array.
+    @_disfavoredOverload
     @inlinable
     public convenience init(_ array: Array<Element>) {
         let buffer = UnsafeMutableBufferPointer<Element>.allocate(capacity: array.count)
@@ -22,6 +23,7 @@ extension MultiArray {
     }
     
     /// Initialize using the given array.
+    @_disfavoredOverload
     @inlinable
     public convenience init(_ array: some Collection<Array<Element>>) {
         let shape = [array.count, array.first?.count ?? 0]

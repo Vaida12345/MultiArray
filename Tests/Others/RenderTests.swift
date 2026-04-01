@@ -17,4 +17,10 @@ struct RenderTests {
         let image = multiArray.rendered()!
         Attachment.record(NSImage(cgImage: image, size: .zero))
     }
+    
+    @Test func `2d`() async throws {
+        let multiArray = MultiArray<Float>([[1, 2, 3], [4, 5, 6]] as [[Float]])
+        let image = multiArray.rendered()!
+        Attachment.record(NSImage(cgImage: image, size: .zero))
+    }
 }

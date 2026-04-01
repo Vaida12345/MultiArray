@@ -27,15 +27,21 @@ extension MultiArray where Element == Float {
         let height = sourceHeight * unitHeight
         let width = sourceWidth * unitWidth
 
-        var minimum = self.min()
+        let minimum = self.min()
         let maximum = self.max()
         
         var sourceLuma: [UInt8] = [UInt8](repeating: UInt8.max, count: self.count)
         if minimum != maximum {
-            var scale = 255 / (maximum - minimum)
+            var scale = (maximum - minimum) / 255
             let copy = MultiArray.allocate(self.shape)
-            vDSP_vsadd(self.baseAddress, 1, &minimum, copy.baseAddress, 1, vDSP_Length(self.count))
+            var negativeMinimum = -minimum
+            vDSP_vsadd(self.baseAddress, 1, &negativeMinimum, copy.baseAddress, 1, vDSP_Length(self.count))
             vDSP_vsdiv(copy.baseAddress, 1, &scale,  copy.baseAddress, 1, vDSP_Length(self.count))
+            
+            var negate: Float = -1                            // 255 - normalized
+            var bias: Float = 255
+            vDSP_vsmsa(copy.baseAddress, 1, &negate, &bias, copy.baseAddress, 1, vDSP_Length(self.count))
+            
             vDSP.convertElements(of: copy, to: &sourceLuma, rounding: .towardNearestInteger)
         }
 
