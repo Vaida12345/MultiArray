@@ -14,7 +14,7 @@ extension MultiArray where Element == Float {
     
     /// Render `self` as a CGImage if `self` is a 2D or 1D array.
     ///
-    /// Returns an image with luma relative to local min and max. The higher the value is, the darker.
+    /// Returns an image with luma relative to local min and max. The higher the value is, the lighter.
     public func rendered(options: RenderOptions = RenderOptions()) -> CGImage? {
         
         guard options.unitWidth > 0, options.unitHeight > 0 else { return nil }
@@ -37,10 +37,6 @@ extension MultiArray where Element == Float {
             var negativeMinimum = -minimum
             vDSP_vsadd(self.baseAddress, 1, &negativeMinimum, copy.baseAddress, 1, vDSP_Length(self.count))
             vDSP_vsdiv(copy.baseAddress, 1, &scale,  copy.baseAddress, 1, vDSP_Length(self.count))
-            
-            var negate: Float = -1                            // 255 - normalized
-            var bias: Float = 255
-            vDSP_vsmsa(copy.baseAddress, 1, &negate, &bias, copy.baseAddress, 1, vDSP_Length(self.count))
             
             vDSP.convertElements(of: copy, to: &sourceLuma, rounding: .towardNearestInteger)
         }
