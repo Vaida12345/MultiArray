@@ -1,5 +1,5 @@
 {
-  "originHash" : "b4c5c79b3de983c2a0bcb2f639a8b831edf1270fa811a41d82526d6824fab882",
+  "originHash" : "68faa8a11187152c4b2b3bcd3f4d1b24ce79975fe7ab27c0c96f8b31f26c746f",
   "pins" : [
     {
       "identity" : "detaileddescription",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Vaida12345/FinderItem.git",
       "state" : {
-        "revision" : "5456f831e325313a44814e5b19beafd434b12b7f",
-        "version" : "1.2.4"
+        "revision" : "7b2a205302c6b3738daddd64139311d48377ab78",
+        "version" : "2.0.1"
       }
     }
   ],
