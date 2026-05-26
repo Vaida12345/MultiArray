@@ -51,8 +51,9 @@ extension MultiArray {
         
         var shape: [[Int]] = []
         var strides: [UnsafeMutableBufferPointer<Int>] = []
+        var ownedStrides: [UnsafeMutableBufferPointer<Int>] = []
         defer {
-            for stride in strides.dropFirst() {
+            for stride in ownedStrides {
                 stride.deallocate()
             }
         }
@@ -66,12 +67,11 @@ extension MultiArray {
             shape.append(_shape)
             
             if _shape.isEmpty {
-                // use result strides
                 assert(!(shape.last!.isEmpty && resultBuffer == nil), "Cannot use `offset` to create a new MultiArray.")
-                let _strides = MultiArray.contiguousStrides(shape: resultBuffer!.shape)
-                strides.append(_strides)
+                strides.append(resultBuffer!.strides)
             } else {
                 let _strides = MultiArray.contiguousStrides(shape: _shape)
+                ownedStrides.append(_strides)
                 strides.append(_strides)
             }
         }
@@ -79,6 +79,7 @@ extension MultiArray {
         if !shape.last!.isEmpty {
             resultingShape = shape.last!
         }
+        assert(!resultingShape.isEmpty || resultBuffer != nil)
         let resultBuffer = resultBuffer?.buffer.baseAddress ?? .allocate(capacity: resultingShape.reduce(1, *))
         let indexes = UnsafeMutableBufferPointer<Int>.allocate(capacity: self.shape.count)
         defer { indexes.deallocate() }
