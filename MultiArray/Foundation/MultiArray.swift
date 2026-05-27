@@ -9,7 +9,7 @@ import Foundation
 
 
 /// A collection type that stores numeric values in an array with multiple dimensions.
-public final class MultiArray<Element>: @unchecked Sendable {
+public final class MultiArray<Element>: @unchecked Sendable where Element: BitwiseCopyable {
     
     /// The underlying buffer.
     ///

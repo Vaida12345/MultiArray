@@ -46,19 +46,19 @@ extension MultiArray<Float> {
     @inlinable
     public static func - (lhs: MultiArray<Float>, rhs: MultiArray<Float>) -> MultiArray<Float> {
         assert(lhs.shape == rhs.shape, "Cannot add MultiArrays of shapes \(lhs.shape) and \(rhs.shape)")
-        
+
         let result = MultiArray.conditionalAllocate(referencing: lhs)
-        vDSP_vsub(lhs.baseAddress, 1, rhs.baseAddress, 1, result.baseAddress, 1, vDSP_Length(lhs.count))
-        
+        vDSP_vsub(rhs.baseAddress, 1, lhs.baseAddress, 1, result.baseAddress, 1, vDSP_Length(lhs.count))
+
         return result
     }
-    
+
     /// Performs element-wise subtraction on two matrices.
     @inlinable
     public static func -= (lhs: inout MultiArray<Float>, rhs: MultiArray<Float>) {
         assert(lhs.shape == rhs.shape, "Cannot add MultiArrays of shapes \(lhs.shape) and \(rhs.shape)")
-        
-        vDSP_vsub(lhs.baseAddress, 1, rhs.baseAddress, 1, lhs.baseAddress, 1, vDSP_Length(lhs.count))
+
+        vDSP_vsub(rhs.baseAddress, 1, lhs.baseAddress, 1, lhs.baseAddress, 1, vDSP_Length(lhs.count))
     }
 }
 

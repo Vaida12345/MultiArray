@@ -12,7 +12,7 @@ import os
 
 @Suite
 struct TransactionTests {
-    
+
 //    @Suite(.disabled())
     struct Trace {
         @Test func transpose() async throws {
@@ -26,7 +26,7 @@ struct TransactionTests {
                 return result
             }
         }
-        
+
         @Test func convertIndexForward() async throws {
             var index: Int = 0
             let length = 1000_000
@@ -34,13 +34,13 @@ struct TransactionTests {
             _ = indexes.initialize(from: 1...length)
             let strides = UnsafeMutableBufferPointer<Int>.allocate(capacity: length)
             _ = strides.initialize(from: 1...length)
-            
+
             let signpost = OSSignposter(subsystem: "Trace", category: .pointsOfInterest)
             let _ = signpost.withIntervalSignpost("Convert") {
                 MultiArrayConvertIndex(from: indexes, to: &index, strides: strides)
             }
         }
-        
+
         @Test func convertIndexBackward() async throws {
             let index: Int = 0
             let length = 100
@@ -48,14 +48,14 @@ struct TransactionTests {
             _ = indexes.initialize(from: 1...length)
             let strides = UnsafeMutableBufferPointer<Int>.allocate(capacity: length)
             _ = strides.initialize(from: 1...length)
-            
+
             let signpost = OSSignposter(subsystem: "Trace", category: .pointsOfInterest)
             let _ = signpost.withIntervalSignpost("Convert") {
                 MultiArrayConvertIndex(from: index, to: indexes, strides: strides)
             }
         }
     }
-    
+
     @Test func transpose() async throws {
         let multiArray = MultiArray<Float>.random(2, 4, 2)
         let new = multiArray.withTransaction { proxy in
@@ -63,7 +63,7 @@ struct TransactionTests {
             #expect(proxy.shape == [4, 2, 2])
             return proxy
         }
-        
+
         #expect(new.shape == [4, 2, 2])
         #expect(multiArray[0, 0, 0] == new[0, 0, 0])
         #expect(multiArray[0, 1, 0] == new[1, 0, 0])
@@ -74,7 +74,7 @@ struct TransactionTests {
         #expect(multiArray[1, 2, 0] == new[2, 1, 0])
         #expect(multiArray[1, 3, 0] == new[3, 1, 0])
     }
-    
+
     @Test func reshape() async throws {
         let multiArray = MultiArray<Float>.random(2, 7, 3)
         let new = multiArray.withTransaction { proxy in
@@ -82,36 +82,70 @@ struct TransactionTests {
             assert(proxy.shape == [6, 7])
             return proxy
         }
-        
+
         #expect(new == multiArray.reshape(-1, 7))
     }
-    
+
+    @Test func chainedOperations() async throws {
+        let x = MultiArray<Float>.random(2, 4, 6)
+        let result = x.withTransaction { proxy in
+            proxy
+                .transposed(0, 1)
+                .sliced(nil, 0..<1, nil)
+                .reshape(-1, 6)
+        }
+        #expect(result.shape == [4, 6])
+    }
+
+    @Test func convertIndexRoundtrip() {
+        // indexes → offset → indexes should give back the same indexes
+        let shape: [Int] = [3, 4, 5]
+        let strides = MultiArray<Int>.contiguousStrides(shape: shape)
+        defer { strides.deallocate() }
+
+        let indexes: [Int] = [2, 1, 3]
+        var offset: Int = 0
+        MultiArray<Float>.convertIndex(from: indexes, to: &offset, strides: strides)
+
+        var recovered = [Int](repeating: 0, count: indexes.count)
+        MultiArray<Float>.convertIndex(from: offset, to: &recovered, strides: strides)
+
+        #expect(indexes == recovered)
+    }
+
+    @Test func convertIndexKnownValue() {
+        // For shape [3, 4], indexes [1, 2] → offset = 1*4 + 2 = 6
+        var offset: Int = 0
+        MultiArray<Float>.convertIndex(from: [1, 2], to: &offset, shape: [3, 4])
+        #expect(offset == 6)
+    }
+
     @Suite struct Slice {
-        
+
         @Test func full() async throws {
             let multiArray = MultiArray<Float>.random(2, 7, 3)
             let new = multiArray.withTransaction { proxy in
                 proxy.sliced(nil, nil, nil)
             }
-            
+
             #expect(new == multiArray)
         }
-        
+
         @Test func none() async throws {
             let multiArray = MultiArray<Float>.random(2, 7, 3)
             let new = multiArray.withTransaction { proxy in
                 proxy.sliced(0..<0, 0..<0, 0..<0) // not recommended, only works for all zeros.
             }
-            
+
             #expect(new.shape == [0, 0, 0])
         }
-        
+
         @Test func leading() async throws {
             let multiArray = MultiArray<Float>.random(3, 7, 3)
             let new = multiArray.withTransaction { proxy in
                 proxy.sliced(0..<2, nil, nil)
             }
-            
+
             #expect(new.shape == [2, 7, 3])
             for i in 0..<7 {
                 #expect(new[0, i, 0] == multiArray[0, i, 0])
@@ -122,13 +156,13 @@ struct TransactionTests {
                 #expect(new[1, i, 2] == multiArray[1, i, 2])
             }
         }
-        
+
         @Test func middle() async throws {
             let multiArray = MultiArray<Float>.random(3, 7, 3)
             let new = multiArray.withTransaction { proxy in
                 proxy.sliced(nil, 4..<6, nil)
             }
-            
+
             #expect(new.shape == [3, 2, 3])
             for i in 0..<3 {
                 for ii in 0..<3 {
@@ -137,13 +171,13 @@ struct TransactionTests {
                 }
             }
         }
-        
+
         @Test func last() async throws {
             let multiArray = MultiArray<Float>.random(3, 7, 3)
             let new = multiArray.withTransaction { proxy in
                 proxy.sliced(nil, nil, 1..<3)
             }
-            
+
             #expect(new.shape == [3, 7, 2])
             for i in 0..<7 {
                 #expect(new[0, i, 0] == multiArray[0, i, 1])
@@ -154,30 +188,41 @@ struct TransactionTests {
                 #expect(new[2, i, 1] == multiArray[2, i, 2])
             }
         }
-        
+
         @Test func mixture() {
             let multiArray = MultiArray<Float>.random(3, 4, 3)
             let new = multiArray.withTransaction { proxy in
                 proxy.sliced(nil, 1..<3, 1..<2)
             }
-            
+
             #expect(new.shape == [3, 2, 1])
             for i in 0..<3 {
                 #expect(new[i, 0, 0] == multiArray[i, 1, 1])
                 #expect(new[i, 1, 0] == multiArray[i, 2, 1])
             }
         }
+
+        @Test func slice1D() {
+            let x = MultiArray<Float>.random(10)
+            let result = x.withTransaction { proxy in
+                proxy.sliced(2..<7)
+            }
+            #expect(result.shape == [5])
+            for i in 0..<5 {
+                #expect(result[offset: i] == x[offset: i + 2])
+            }
+        }
     }
-    
+
     @Test func offset() async throws {
         let multiArray = MultiArray<Float>.random(1, 7, 3)
         var new = MultiArray<Float>.allocate(2, 7, 3)
         new.buffer.initialize(repeating: .nan)
-        
+
         multiArray.withTransaction(into: &new) { proxy in
             proxy.offset(1, 0, 0)
         }
-        
+
         for i in 0..<7 {
             for ii in 0..<3 {
                 #expect(new[0, i, ii].isNaN)
@@ -185,22 +230,22 @@ struct TransactionTests {
             }
         }
     }
-    
+
     @Test func offset2() async throws {
         let multiArray = MultiArray<Float>.random(1, 7, 3)
         var new = MultiArray<Float>.allocate(1, 8, 5)
         new.buffer.initialize(repeating: .nan)
-        
+
         multiArray.withTransaction(into: &new) { proxy in
             proxy.offset(0, 1, 2)
         }
-        
+
         print(multiArray)
         print(new)
-        
+
         #expect(new[0, 0, 0].isNaN)
         #expect(new[0, 0, 1].isNaN)
-        
+
         for i in 0..<7 {
             for ii in 0..<3 {
                 #expect(new[0, i + 1, ii + 2] == multiArray[0, i, ii])

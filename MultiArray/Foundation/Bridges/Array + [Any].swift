@@ -64,7 +64,7 @@ extension MultiArray {
 }
 
 
-extension Array {
+extension Array where Element: BitwiseCopyable {
     
     /// Calls the given closure with a pointer to the array's mutable contiguous storage.
     @inlinable

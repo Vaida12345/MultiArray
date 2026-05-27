@@ -59,7 +59,13 @@ public final class DiscreteFourierTransform {
         vDSP_vsmul(buffer.baseAddress!, 1, &scale, buffer.baseAddress!, 1, vDSP_Length(buffer.count))
         
         result.withMemoryRebound(to: DSPComplex.self, capacity: (n_fft / 2 + 1) * stride) { complexBuffer in
-            vDSP_ztoc(&splitComplex, 1, complexBuffer, 2 /*complex values*/ * stride, vDSP_Length(n_fft / 2))
+            vDSP_ztoc(
+                &splitComplex,
+                1,
+                complexBuffer,
+                2 /*complex values*/ * stride /* number of complex values */,
+                vDSP_Length(n_fft / 2)
+            )
             complexBuffer[n_fft / 2 * stride] = DSPComplex(real: splitComplex.imagp[0], imag: 0)
             complexBuffer[0].imag = 0
         }
