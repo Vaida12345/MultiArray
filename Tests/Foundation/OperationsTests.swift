@@ -75,6 +75,47 @@ struct OperationsTests {
         #expect(MultiArray.matmul(a, a).contentsEqual(MultiArray<Float>([[7, 10], [15, 22]] as [[Float]])))
     }
 
+    @Test func matmulTransposingRightHandSide() {
+        let lhs = MultiArray<Float>([
+            [1, 2, 3],
+            [4, 5, 6]
+        ] as [[Float]])
+        let rhs = MultiArray<Float>([
+            [7, 8, 9],
+            [10, 11, 12],
+            [13, 14, 15],
+            [16, 17, 18]
+        ] as [[Float]])
+
+        let expected = MultiArray<Float>([
+            [50, 68, 86, 104],
+            [122, 167, 212, 257]
+        ] as [[Float]])
+
+        #expect(MultiArray.matmul(lhs, transposing: rhs).contentsEqual(expected))
+    }
+
+    @Test func matmulTransposingRightHandSideIntoBuffer() {
+        let lhs = MultiArray<Float>([
+            [1, 2, 3],
+            [4, 5, 6]
+        ] as [[Float]])
+        let rhs = MultiArray<Float>([
+            [7, 8, 9],
+            [10, 11, 12],
+            [13, 14, 15],
+            [16, 17, 18]
+        ] as [[Float]])
+        var result = MultiArray<Float>.allocate(2, 4)
+
+        MultiArray.matmul(lhs, transposing: rhs, into: &result)
+
+        #expect(result.contentsEqual(MultiArray<Float>([
+            [50, 68, 86, 104],
+            [122, 167, 212, 257]
+        ] as [[Float]])))
+    }
+
     @Test func clip() async throws {
         var a = MultiArray<Float>([0, 0])
         vForce.log10(a, result: &a)

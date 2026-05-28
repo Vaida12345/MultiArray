@@ -22,7 +22,8 @@ public final class LogmelFilter {
     
     private let fmax: Float
     
-    private var filters: MultiArray<Float>!
+    // internal for testing
+    var filters: MultiArray<Float>!
     
     
     public init(
@@ -38,14 +39,12 @@ public final class LogmelFilter {
         self.fmin = fmin
         self.fmax = fmax ?? Float(sampleRate / 2)
         
-        self.filters = self.filter().transposed()
+        self.filters = self.filter()
     }
     
     
     public func callAsFunction(_ input: MultiArray<Float>) -> MultiArray<Float> {
-        let values = MultiArray.matmul(input, self.filters)
-        values.negate() // okay, must negate, don't know why
-        return values
+        MultiArray.matmul(input, transposing: self.filters)
     }
     
     
