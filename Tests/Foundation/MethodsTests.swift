@@ -60,5 +60,18 @@ struct MethodsTests {
         }
     }
 
+    @Test func pointer() async throws {
+        let x = MultiArray(
+            [
+                [1, 2, 3],
+                [4, 5, 6]
+            ]
+        )
+        #expect(x.pointer(at: 0).pointee == 1)
+        #expect(x.pointer(at: 1).pointee == 4)
+        #expect(x.pointer(at: 0, 0).pointee == 1)
+        #expect(x.pointer(at: 1, 0).pointee == 4)
+        #expect(Array(UnsafeMutableBufferPointer(start: x.pointer(at: 1, 0), count: 3)) == [4, 5, 6])
+    }
 
 }
