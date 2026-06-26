@@ -61,13 +61,13 @@ public final class LogmelFilter {
         var i = 0
         while i < n_mels {
             var lower = ramps.withoutCopying {
-                -ramps.view(at: [i]) / fdiff[i]
+                -ramps.view(i) / fdiff[i]
             }
-            let upper = ramps.view(at: [i + 2]) / fdiff[i + 1]
+            let upper = ramps.view(i + 2) / fdiff[i + 1]
             
             vDSP.minimum(lower, upper, result: &lower)
             
-            var weight = weights.view(at: [i]) // return by reference
+            var weight = weights.view(i) // return by reference
             vDSP.threshold(lower, to: 0, with: .clampToThreshold, result: &weight)
             i &+= 1
         }

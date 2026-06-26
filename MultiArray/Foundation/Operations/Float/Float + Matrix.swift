@@ -20,7 +20,7 @@ extension MultiArray where Element == Float {
         // for each row
         var i = 0
         while i < self.shape[0] {
-            vDSP_vsmul(self.view(at: [i]).baseAddress, 1, row.baseAddress + i, self.view(at: [i]).baseAddress, 1, vDSP_Length(self.shape[1]))
+            vDSP_vsmul(self.pointer(i), 1, row.baseAddress + i, self.pointer(i), 1, vDSP_Length(self.shape[1]))
             i &+= 1
         }
     }

@@ -68,7 +68,6 @@ public final class MultiArray<Element>: @unchecked Sendable where Element: Bitwi
         return self.buffer
     }
     
-    
     @inlinable
     internal init(
         bytesNoCopy buffer: UnsafeMutableBufferPointer<Element>,
