@@ -36,6 +36,32 @@ extension MLMultiArray {
         }
     }
     
+    /// Creates the `MLMultiArray` from the given `MultiArray`.
+    ///
+    /// `self` indirectly owns the input on return, and is responsible for its (automatic) release.
+    public convenience init<T>(unsqueezing array: MultiArray<T>) throws {
+        let dataType: MLMultiArrayDataType
+        switch T.self {
+        case is Int32.Type: dataType = .int32
+#if (!os(macOS) || arch(arm64))
+        case is Float16.Type: dataType = .float16
+#endif
+        case is Float.Type: dataType = .float32
+        case is Double.Type: dataType = .double
+        default: fatalError("Unsupported type \(T.self)")
+        }
+        
+        let unmanaged = Unmanaged.passRetained(array)
+        try self.init(
+            dataPointer: array.baseAddress,
+            shape: [NSNumber(integerLiteral: 1)] + array.shape.map({ NSNumber(value: $0) }),
+            dataType: dataType,
+            strides: [NSNumber(integerLiteral: array.count)] + array.strides.map({ NSNumber(value: $0) })
+        ) { _ in
+            unmanaged.release()
+        }
+    }
+    
 }
 
 

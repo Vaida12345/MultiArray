@@ -34,4 +34,20 @@ extension MultiArray<Float> {
         vDSP.maximum(self)
     }
     
+    /// Applies the `sigmoid` function.
+    ///
+    /// - Complexity: O(*n*), in-place mutation.
+    ///
+    /// - Experiment: This may not be the optimal implementation, it seems that using `BNNS` could be faster.
+    @inlinable
+    func sigmoid() {
+        let count = vDSP_Length(self.count)
+        var one: Float = 1.0
+        vDSP_vneg(baseAddress, 1, baseAddress, 1, count) // Negate the values
+        var _count = Int32(count)
+        vvexpf(baseAddress, baseAddress, &_count)          // Apply exp to each value
+        vDSP_vsadd(baseAddress, 1, &one, baseAddress, 1, count) // Add 1 to each value
+        vvrecf(baseAddress, baseAddress, &_count) // Divide 1 by each value
+    }
+    
 }
