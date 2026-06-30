@@ -40,7 +40,7 @@ extension MultiArray<Float> {
     ///
     /// - Experiment: This may not be the optimal implementation, it seems that using `BNNS` could be faster.
     @inlinable
-    func sigmoid() {
+    public func sigmoid() {
         let count = vDSP_Length(self.count)
         var one: Float = 1.0
         vDSP_vneg(baseAddress, 1, baseAddress, 1, count) // Negate the values

@@ -16,7 +16,7 @@ extension MultiArray where Element == Float {
     ///
     /// - Complexity: in-place mutation.
     @inlinable
-    static func matmul(_ lhs: MultiArray, _ rhs: MultiArray, into buffer: inout MultiArray) {
+    public static func matmul(_ lhs: MultiArray, _ rhs: MultiArray, into buffer: inout MultiArray) {
         assert(lhs.shape.count == 2 && rhs.shape.count == 2 && buffer.shape.count == 2)
         assert(lhs.shape[1] == rhs.shape[0])
         assert(lhs.shape[0] == buffer.shape[0] && rhs.shape[1] == buffer.shape[1])
@@ -42,7 +42,7 @@ extension MultiArray where Element == Float {
     ///
     /// This computes `lhs * rhs.transposed()` without materializing the transposed matrix.
     @inlinable
-    static func matmul(_ lhs: MultiArray, transposing rhs: MultiArray, into buffer: inout MultiArray) {
+    public static func matmul(_ lhs: MultiArray, transposing rhs: MultiArray, into buffer: inout MultiArray) {
         assert(lhs.shape.count == 2 && rhs.shape.count == 2 && buffer.shape.count == 2)
         assert(lhs.shape[1] == rhs.shape[1])
         assert(buffer.shape[0] == lhs.shape[0] && buffer.shape[1] == rhs.shape[0], "The result matrix is in incorrect shape.")
@@ -70,7 +70,7 @@ extension MultiArray where Element == Float {
     ///
     /// - Complexity: in-place mutation.
     @inlinable
-    static func matmul(_ lhs: MultiArray, _ rhs: MultiArray) -> MultiArray {
+    public static func matmul(_ lhs: MultiArray, _ rhs: MultiArray) -> MultiArray {
         var result = MultiArray.allocate(lhs.shape[0], rhs.shape[1])
         MultiArray.matmul(lhs, rhs, into: &result)
         return result
@@ -80,7 +80,7 @@ extension MultiArray where Element == Float {
     ///
     /// This computes `lhs * rhs.transposed()` without materializing the transposed matrix.
     @inlinable
-    static func matmul(_ lhs: MultiArray, transposing rhs: MultiArray) -> MultiArray {
+    public static func matmul(_ lhs: MultiArray, transposing rhs: MultiArray) -> MultiArray {
         var result = MultiArray.allocate(lhs.shape[0], rhs.shape[0])
         MultiArray.matmul(lhs, transposing: rhs, into: &result)
         return result
