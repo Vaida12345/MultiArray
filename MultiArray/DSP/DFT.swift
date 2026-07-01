@@ -10,7 +10,9 @@ import Accelerate
 
 /// One dimensional real discrete Fourier transform.
 ///
-/// The `callAsFunction` method replicates exactly `torch.fft.rfft`.
+/// The `callAsFunction` method replicates exactly `torch.fft.rfft`, with `backward` normalization, that is, no normalization.
+///
+/// To get `forward` and `ortho` normalization, simply divide the final output by `n` and `sqrt(n)` respectively.
 public final class DiscreteFourierTransform {
     
     private let n_fft: Int

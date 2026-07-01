@@ -41,10 +41,7 @@ public final class MultiArray<Element>: @unchecked Sendable where Element: Bitwi
     public let strides: UnsafeMutableBufferPointer<Int>
     
     /// The base address underlying buffer
-    @inlinable
-    public var baseAddress: UnsafeMutablePointer<Element> {
-        self.buffer.baseAddress!
-    }
+    public let baseAddress: UnsafeMutablePointer<Element>
     
     /// The number of elements in the `MultiArray`.
     @inlinable
@@ -78,6 +75,7 @@ public final class MultiArray<Element>: @unchecked Sendable where Element: Bitwi
         assert(shape.allSatisfy({ $0 >= 0 }), "Invalid shape")
         assert(buffer.count == shape.reduce(1, *), "Invalid shape \(shape) and buffer size \(buffer.count)")
         
+        self.baseAddress = buffer.baseAddress!
         self.buffer = buffer
         self.deallocator = deallocator
         self.shape = shape
