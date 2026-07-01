@@ -244,5 +244,41 @@ struct OperationsTests {
         #expect(x[2, 1] == 24)
     }
 
+    @Test func normalizedMSEPerfectMatch() {
+        let a = MultiArray<Float>([1, 2, 3, 4, 5])
+        let b = MultiArray<Float>([1, 2, 3, 4, 5])
+        #expect(a.normalizedMSE(to: b) == 0)
+    }
+
+    @Test func normalizedMSESelf() {
+        let a = MultiArray<Float>.random(3, 4)
+        #expect(a.normalizedMSE(to: a) == 0)
+    }
+
+    @Test func normalizedMSEKnownValues() {
+        let prediction = MultiArray<Float>([1, 2, 3])
+        let groundTruth = MultiArray<Float>([2, 3, 4])
+        // diff = (2-1)² + (3-2)² + (4-3)² = 1 + 1 + 1 = 3
+        // signalEnergy = 2² + 3² + 4² = 4 + 9 + 16 = 29
+        // NMSE = 3 / 29 ≈ 0.103448
+        let expected: Float = 3.0 / 29.0
+        #expect(abs(prediction.normalizedMSE(to: groundTruth) - expected) < 1e-6)
+    }
+
+    @Test func normalizedMSEPredictionWorseThanZero() {
+        let prediction = MultiArray<Float>([10, 10])
+        let groundTruth = MultiArray<Float>([1, 1])
+        // diff = (1-10)² + (1-10)² = 81 + 81 = 162
+        // signalEnergy = 1² + 1² = 2
+        // NMSE = 162 / 2 = 81
+        #expect(prediction.normalizedMSE(to: groundTruth) == 81)
+    }
+
+    @Test func normalizedMSEZeroGroundTruth() {
+        let prediction = MultiArray<Float>([1, 2, 3])
+        let groundTruth = MultiArray<Float>([0, 0, 0])
+        // signalEnergy = 0, so division by zero → inf
+        #expect(prediction.normalizedMSE(to: groundTruth).isInfinite)
+    }
 
 }
