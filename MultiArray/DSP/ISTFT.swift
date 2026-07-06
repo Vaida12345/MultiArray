@@ -55,28 +55,30 @@ public struct InverseShortTimeFourierTransform: Sendable {
         var buffer = [Float](repeating: 0, count: bufferLength)
         var windowSum = [Float](repeating: 0, count: bufferLength)
         
-        var frameIndex = nFrames - 1
-        while frameIndex >= 0 {
-            var frame = idft(input.baseAddress + frameIndex * 2, stride: input.strides[0] / 2)
-            // SYNTHESIS WINDOW: multiply (no divisions by small w[n])
-            vDSP.multiply(frame, window, result: &frame)
-            
-            let start = frameIndex * hop
-            let end   = start + n_fft
-            
-            let span = end - start
-            var offset = 0
-            while offset < span {
-                defer {
-                    offset &+= 1
+        buffer.withUnsafeMutableBufferPointer { buffer in
+            windowSum.withUnsafeMutableBufferPointer { windowSum in
+                var frameIndex = nFrames - 1
+                while frameIndex >= 0 {
+                    var frame = idft(input.baseAddress + frameIndex * 2, stride: input.strides[0] / 2)
+                    // SYNTHESIS WINDOW: multiply (no divisions by small w[n])
+                    vDSP.multiply(frame, window, result: &frame)
+                    
+                    let start = frameIndex * hop
+                    let end   = start + n_fft
+                    
+                    let span = end - start
+                    var offset = 0
+                    while offset < span {
+                        defer {offset &+= 1 }
+                        
+                        let index = start + offset
+                        guard index >= padAmount && index < bufferLength + padAmount else { continue }
+                        buffer[index &- padAmount] += frame[offset]
+                        windowSum[index &- padAmount] += windowSquared[offset]
+                    }
+                    frameIndex &-= 1
                 }
-                
-                let index = start + offset
-                guard index >= padAmount && index < bufferLength + padAmount else { continue }
-                buffer[index - padAmount] += frame[offset]
-                windowSum[index - padAmount] += windowSquared[offset]
             }
-            frameIndex -= 1
         }
         
         // MARK: - synthesis
