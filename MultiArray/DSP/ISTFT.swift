@@ -60,23 +60,24 @@ public struct InverseShortTimeFourierTransform: Sendable {
                 var frameIndex = nFrames - 1
                 while frameIndex >= 0 {
                     var frame = idft(input.baseAddress + frameIndex * 2, stride: input.strides[0] / 2)
-                    // SYNTHESIS WINDOW: multiply (no divisions by small w[n])
-                    vDSP.multiply(frame, window, result: &frame)
-                    
-                    let start = frameIndex * hop
-                    let end   = start + n_fft
-                    
-                    let span = end - start
-                    var offset = 0
-                    while offset < span {
-                        defer {offset &+= 1 }
+                    frame.withUnsafeMutableBufferPointer { frame in
+                        // SYNTHESIS WINDOW: multiply (no divisions by small w[n])
+                        vDSP.multiply(frame, window, result: &frame)
                         
-                        let index = start + offset
-                        guard index >= padAmount && index < bufferLength + padAmount else { continue }
-                        buffer[index &- padAmount] += frame[offset]
-                        windowSum[index &- padAmount] += windowSquared[offset]
+                        let start = frameIndex * hop
+                        let end   = start + n_fft
+                        
+                        let span = end - start
+                        var offset = 0
+                        while offset < span {
+                            let index = start + offset
+                            guard index >= padAmount && index < bufferLength + padAmount else { offset &+= 1; continue }
+                            buffer[index &- padAmount] += frame[offset]
+                            windowSum[index &- padAmount] += windowSquared[offset]
+                            offset &+= 1
+                        }
+                        frameIndex &-= 1
                     }
-                    frameIndex &-= 1
                 }
             }
         }

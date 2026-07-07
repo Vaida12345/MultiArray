@@ -68,6 +68,8 @@ public final class DiscreteFourierTransform {
                 2 /*complex values*/ * stride /* number of complex values */,
                 vDSP_Length(n_fft / 2)
             )
+            
+            // Nyquist bin
             complexBuffer[n_fft / 2 * stride] = DSPComplex(real: splitComplex.imagp[0], imag: 0)
             complexBuffer[0].imag = 0
         }
