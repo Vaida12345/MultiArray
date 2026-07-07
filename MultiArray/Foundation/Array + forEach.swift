@@ -61,6 +61,11 @@ extension MultiArray {
         public let offset: Int
         
         @inlinable
+        public var baseAddress: UnsafeMutablePointer<Int>? {
+            buffer.baseAddress
+        }
+        
+        @inlinable
         init(buffer: UnsafeMutableBufferPointer<Int>, offset: Int) {
             self.buffer = buffer
             self.offset = offset
