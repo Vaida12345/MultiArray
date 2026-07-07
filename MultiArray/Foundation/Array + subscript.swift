@@ -157,41 +157,6 @@ extension MultiArray {
         )
     }
     
-    /// For each of the element in the array.
-    ///
-    /// - Complexity: O(*n*)
-    @inlinable
-    public func forEach(_ block: (_ indexes: UnsafeMutableBufferPointer<Int>, _ value: Element) -> Void) {
-        var i = 0
-        let iteratorCount = self.strides.count
-        let iterator = UnsafeMutableBufferPointer<Int>.allocate(capacity: iteratorCount)
-        iterator.initialize(repeating: 0)
-        defer { iterator.deallocate() }
-        
-        let upperBound = self.count
-        
-        while i < upperBound {
-            let value = self.buffer[i]
-            block(iterator, value)
-            
-            iterator[iteratorCount &- 1] &+= 1
-            
-            // carry
-            var ishape = iteratorCount &- 1
-            while ishape != 0 {
-                if iterator[ishape] == self.shape[ishape] {
-                    iterator[ishape] = 0
-                    iterator[ishape &- 1] &+= 1
-                } else {
-                    break
-                }
-                ishape &-= 1
-            }
-            
-            i &+= 1
-        }
-    }
-    
     @inlinable
     func isValid(indexes: [Int]) -> Bool {
         var i = 0

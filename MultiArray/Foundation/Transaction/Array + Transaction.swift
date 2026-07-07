@@ -119,6 +119,7 @@ extension MultiArray {
         
         // MARK: - ForEach
         self.forEach { _indexes, value in
+            let _indexes = _indexes.buffer
             indexes.copy(from: _indexes.baseAddress!, count: _indexes.count)
             
             var i = 0
