@@ -35,8 +35,8 @@ public struct ShortTimeFourierTransform: Sendable {
     ///
     /// - Parameter input: 1D array, `L`
     ///
-    /// - Returns: `frequencySamples × frames × complexComponents`, `n_fft/2+1 × (1+L)/hop × 2`
-    public func callAsFunction(_ input: consuming MultiArray<Float>) -> MultiArray<Float> {
+    /// - Returns: `frequencySamples × frames × complexComponents`, `n_fft/2+1 × L/hop+1 × 2`
+    public func callAsFunction(_ input: consuming MultiArray<Float>, result: inout MultiArray<Float>) {
         assert(input.shape.count == 1 || input.shape.dropLast().allSatisfy({ $0 == 1 }), "Invalid input shape")
         
         // 1. Optional reflect-padding to “center” frames, as PyTorch does by default.
@@ -51,10 +51,6 @@ public struct ShortTimeFourierTransform: Sendable {
         // 4. Figure out how many frames we can extract.
         let totalLength = x.count
         let nFrames = max(0, (totalLength - n_fft) / hop + 1) // yes, this should be different to doc return shape.
-        let halfSize = n_fft / 2 + 1  // onesided
-        
-        // Allocate output: [frequencyBin][frameIndex][realOrImag]
-        let result = MultiArray<Float>.allocate(halfSize, nFrames, 2)
         
         let dft = DiscreteFourierTransform(count: n_fft)
         let hop = self.hop
@@ -75,7 +71,18 @@ public struct ShortTimeFourierTransform: Sendable {
             
             frameIndex &+= 1
         }
-        
+    }
+    
+    /// Replicates exactly `torch.fft.stft`.
+    ///
+    /// - Parameter input: 1D array, `L`
+    ///
+    /// - Returns: `frequencySamples × frames × complexComponents`, `n_fft/2+1 × (1+L)/hop × 2`
+    public func callAsFunction(_ input: consuming MultiArray<Float>) -> MultiArray<Float> {
+        let halfSize = n_fft / 2 + 1  // onesided
+        let nFrames = max(0, (input.count) / hop + 1)
+        var result = MultiArray<Float>.allocate(halfSize, nFrames, 2)
+        self.callAsFunction(input, result: &result)
         return result
     }
     
